@@ -106,10 +106,6 @@ class Register(PermissionRequiredMixin, TemplateView):
             # Already registered -> ignore
             pass
 
-        self.extra_context = {
-            'day': kwargs.get('day')
-        }
-
         return super().get(request, args, kwargs)
 
 
@@ -127,10 +123,6 @@ class DeRegister(PermissionRequiredMixin, TemplateView):
                 presence.delete()
         except Presence.DoesNotExist:
             pass
-
-        self.extra_content = {
-            'day': kwargs.get('day')
-        }
 
         return super().get(request, args, kwargs)
 
