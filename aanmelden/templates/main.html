@@ -16,32 +16,6 @@
             <br>
             Volgens onze administratie is je e-mailadres: <b>{{ request.user.email }}</b>.
         </p>
-
-        <!-- <p>
-            Er zijn nog <span class="badge badge-{% if fri_avail < 6 %}danger{% else %}primary{% endif %}">{{ fri_avail }}</span> plaatsen beschikbaar op Vrijdag<br>
-            Er zijn nog <span class="badge badge-{% if sat_avail < 6 %}danger{% else %}primary{% endif %}">{{ sat_avail }}</span> plaatsen beschikbaar op Zaterdag<br>
-        </p>
-        <p>
-        {% if reg_fri or reg_sat %}
-        <div class="alert alert-danger" role="alert">
-            Je hebt al geregistreerd voor aankomende vrijdag of zaterdag!
-        </div>
-        {% endif %}
-        </p>
-        <p class="lead">
-            {% if fri_avail != 0 and not reg_fri %}
-            <a class="btn btn-primary btn-lg" href="{% url 'register' 'fri' %}" role="button">Aanmelden voor vrijdag-DJO</a>
-            {% elif reg_fri %}
-            <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'fri' %}" role="button">Afmelden voor vrijdag-DJO</a>
-            {% endif %}
-            {% if sat_avail != 0 and not reg_sat %}
-            <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor
-                zaterdag-DJO</a>
-            {% elif reg_sat %}
-            <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'sat' %}" role="button">Afmelden voor
-                zaterdag-DJO</a>
-            {% endif %}
-        </p> -->
     </div>
 </div>
 
@@ -50,8 +24,9 @@
         <div class="col-sm">
             <div class="card border-primary">
                 <div class="card-body">
-                    <h4 class="card-title"><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> Vrijdag</h4>
-                    <p class="card-text">Op vrijdag zijn er nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
+                    <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> Vrijdag</h4></div>
+                    <div class="small">{{ fri }}</div>
+                    <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">
                     {% if fri_avail != 0 and not reg_fri %}
@@ -66,7 +41,8 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <h4 class="card-title"><i class="far fa-calendar-{% if reg_sat %}check{% else %}alt{% endif %}"></i> Zaterdag</h4>
-                    <p class="card-text">Op zaterdag zijn er nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
+                    <div class="small">{{ sat }}</div>
+                    <p class="card-text my-2">Op zaterdag zijn er nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">
                     {% if sat_avail != 0 and not reg_sat %}

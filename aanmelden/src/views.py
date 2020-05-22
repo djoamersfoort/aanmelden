@@ -82,7 +82,9 @@ class Main(PermissionRequiredMixin, TemplateView):
             'fri_taken': Presence.slots_taken(Presence.next_friday()),
             'sat_taken': Presence.slots_taken(Presence.next_saturday()),
             'reg_fri': reg_fri,
-            'reg_sat': reg_sat
+            'reg_sat': reg_sat,
+            'fri': fri,
+            'sat': sat
         }
         return super().get(request, args, kwargs)
 

@@ -3,35 +3,49 @@
 
 {% block content %}
 
-<div class="jumbotron">
-
+<div class="jumbotron text-center">
+    <div class="container">
     <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
-    <p class="lead">Een overzicht van leden voor de aankomende vrijdag en zaterdag</p>
-
-    <hr class="my-4">
-
-    <p>
-        Vrijdag {{ fri }}
-        <ul class="list-group">
-            {% for member in object_list %}
-                {% if member.date == fri %}
-                <li class="list-group-item">{{ member.user.first_name }} {{ member.user.last_name }}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </p>
-
-    <p>
-        Zaterdag {{ sat }}
-        <ul class="list-group">
-            {% for member in object_list %}
-                {% if member.date == sat %}
-                <li class="list-group-item">{{ member.user.first_name }} {{ member.user.last_name }}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </p>
-
+    <p class="lead">Een overzicht van leden voor de aankomende vrijdag en zaterdag.</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Vrijdag</h4>
+                    <div class="small">{{ fri }}</div>
+                    <p class="card-text">
+                        <ul>
+                            {% for member in object_list %}
+                                {% if member.date == fri %}
+                                <li>{{ member.user.first_name }} {{ member.user.last_name }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm my-sm-0 my-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Zaterdag</h4>
+                    <div class="small">{{ sat }}</div>
+                    <p class="card-text">
+                        <ul>
+                            {% for member in object_list %}
+                                {% if member.date == sat %}
+                                <li>{{ member.user.first_name }} {{ member.user.last_name }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
