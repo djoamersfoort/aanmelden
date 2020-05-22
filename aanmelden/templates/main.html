@@ -17,8 +17,8 @@
         Volgens onze administratie is je e-mailadres: {{ request.user.email }}.
     </p>
     <p>
-        Er zijn nog {{ fri_avail }} plaatsen beschikbaar op Vrijdag<br>
-        Er zijn nog {{ sat_avail }} plaatsen beschikbaar op Zaterdag<br>
+        Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plaatsen beschikbaar op Vrijdag<br>
+        Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plaatsen beschikbaar op Zaterdag<br>
     </p>
     <p>
         {% if reg_fri or reg_sat %}
