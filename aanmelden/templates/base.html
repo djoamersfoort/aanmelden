@@ -3,27 +3,24 @@
 <html>
 
 <head>
-    <style>
-        #djo-swirl {
-            height: 2rem;
-        }
-    </style>
-    <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="#">
-            <img id="djo-swirl" src="{% static 'djo-swirl-512.png' %}">
+            <img height="45px" src="{% static 'logo.png' %}" class="mr-2"> DJO Aanmeldsite
         </a>
         <!-- TODO contrast ietwat verbeteren -->
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav"
             aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarColor01">
-            <ul class="navbar-nav mr-auto">
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'main' %}">Home</a>
                 </li>
