@@ -1,0 +1,44 @@
+{% load static %}
+
+<html>
+
+<head>
+    <style>
+        #djo-swirl {
+            height: 2rem;
+        }
+    </style>
+    <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">
+            <img id="djo-swirl" src="{% static 'djo-swirl-512.png' %}">
+        </a>
+        <!-- TODO contrast ietwat verbeteren -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+            aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'main' %}">Home</a>
+                </li>
+                {% if 'begeleider' in request.session.profile.types %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Report</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+
+</html>

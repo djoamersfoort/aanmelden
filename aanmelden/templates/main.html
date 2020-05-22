@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="jumbotron">
+
+        <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
+        <p class="lead">Je kunt je hier aanmelden voor DJO voor komende vrijdag of zaterdag</p>
+
+        <!-- Korte uitleg over de maatregelen, indien nodig -->
+        <hr class="my-4">
+        <p>Het aanmelden is nodig om te voorkomen dat er teveel leden aanwezig zijn en we geen 1,5 meter afstand kunnen garanderen.
+            <br><br>
+            Controleer voor dat je je aanmeld of je gegevens juist zijn! Zo kunnen we je bij bijzonderheden
+            bereiken.
+            <br><br>
+            Volgens onze administratie is je emailadres {{ request.user.email }}.
+        </p>
+        <p class="lead">
+            {% if vrijdag_available %}
+              <a class="btn btn-primary btn-lg" href="/aanmelden/dag/vrijdag" role="button">Aanmelden voor vrijdag-DJO</a>
+            {% else %}
+              <a class="btn btn-primary btn-lg" href="#" role="button">Aanmelden voor vrijdag-DJO niet mogelijk</a>
+            {% endif %}
+            {% if zaterdag_available %}
+            <a class="btn btn-primary btn-lg" href="/aanmelden/dag/zaterdag" role="button">Aanmelden voor
+                zaterdag-DJO</a>
+            {% else %}
+            <a class="btn btn-primary btn-lg" href="/aanmelden/dag/zaterdag" role="button">Aanmelden voor
+                zaterdag-DJO niet mogelijk</a>
+            {% endif %}
+        </p>
+    </div>
+
+{% endblock %}
