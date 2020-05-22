@@ -50,7 +50,7 @@
         <div class="col-sm">
             <div class="card border-primary">
                 <div class="card-body">
-                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Vrijdag</h4>
+                    <h4 class="card-title"><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> Vrijdag</h4>
                     <p class="card-text">Op vrijdag zijn er nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">
@@ -65,7 +65,7 @@
         <div class="col-sm my-sm-0 my-3">
             <div class="card border-primary">
                 <div class="card-body">
-                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Zaterdag</h4>
+                    <h4 class="card-title"><i class="far fa-calendar-{% if reg_sat %}check{% else %}alt{% endif %}"></i> Zaterdag</h4>
                     <p class="card-text">Op zaterdag zijn er nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">
