@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 import datetime
 
 
@@ -20,7 +21,7 @@ class Presence(models.Model):
 
     @staticmethod
     def slots_available(on_date):
-        return 16 - Presence.slots_taken(on_date)
+        return settings.SLOTS - Presence.slots_taken(on_date)
 
     @staticmethod
     def slots_taken(on_date):
