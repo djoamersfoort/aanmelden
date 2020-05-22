@@ -7,9 +7,7 @@ class MemberApi:
     def get_user_profile(userid, access_token):
         userid = userid.replace('u-', '')
         url = f'{settings.LEDEN_ADMIN_API_URL}/{userid}/'
-        print(url)
         response = requests.get(url, headers={'Authorization': f'IDP {access_token}'})
-        print(response.content)
         if not response.ok:
             raise ValueError(f"Unable to retrieve user profile: {response.content}")
 
