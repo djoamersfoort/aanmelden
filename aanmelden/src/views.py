@@ -73,6 +73,3 @@ class Main(TemplateView):
                      'sat_avail': Presence.slots_available(Presence.next_saturday()),
                      'fri_taken': Presence.slots_taken(Presence.next_friday()),
                      'sat_taken': Presence.slots_taken(Presence.next_saturday())}
-
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
