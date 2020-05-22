@@ -105,3 +105,21 @@ class Register(PermissionRequiredMixin, TemplateView):
             # Already registered -> ignore
             pass
         return super().get(request, args, kwargs)
+
+
+class DeRegister(PermissionRequiredMixin, TemplateView):
+    template_name = 'deregistered.html'
+
+    def get(self, request, *args, **kwargs):
+        if kwargs.get('day') == 'fri':
+            registration_date = Presence.next_friday()
+        else:
+            registration_date = Presence.next_saturday()
+        try:
+            presence = Presence.objects.get(date=registration_date, user=self.request.user)
+            if presence:
+                presence.delete()
+        except Presence.DoesNotExist:
+            pass
+
+        return super().get(request, args, kwargs)

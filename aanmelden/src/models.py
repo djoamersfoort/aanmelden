@@ -26,5 +26,8 @@ class Presence(models.Model):
     def slots_taken(on_date):
         return Presence.objects.filter(date=on_date).count()
 
+    def __str__(self):
+        return f"{self.date}: {self.user}"
+
     user = models.ForeignKey(User, models.CASCADE)
     date = models.DateField()
