@@ -8,6 +8,7 @@ from django.conf import settings
 import uuid
 from .memberapi import MemberApi
 from .mixins import PermissionRequiredMixin
+from .models import Presence
 
 
 class LoginView(View):
@@ -68,3 +69,10 @@ class LogoffView(PermissionRequiredMixin, View):
 
 class Main(TemplateView):
     template_name = 'main.html'
+    extra_context = {'fri_avail': Presence.slots_available(Presence.next_friday()),
+                     'sat_avail': Presence.slots_available(Presence.next_saturday()),
+                     'fri_taken': Presence.slots_taken(Presence.next_friday()),
+                     'sat_taken': Presence.slots_taken(Presence.next_saturday())}
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
