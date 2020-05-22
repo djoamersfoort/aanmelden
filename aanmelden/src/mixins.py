@@ -10,3 +10,12 @@ class PermissionRequiredMixin(UserPassesTestMixin):
 
     def test_func(self):
         return self.check_user(self.request.user)
+
+
+class BegeleiderRequiredMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        if 'profile' in self.request.session:
+            if 'begeleider' in self.request.session['profile']['types']:
+                return True
+        return False

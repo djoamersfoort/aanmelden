@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidde
 from django.conf import settings
 import uuid
 from .memberapi import MemberApi
-from .mixins import PermissionRequiredMixin
+from .mixins import PermissionRequiredMixin, BegeleiderRequiredMixin
 from .models import Presence
 
 
@@ -55,7 +55,6 @@ class LoginResponseView(View):
             request.session['access_token'] = access_token
             request.session['profile'] = MemberApi.get_user_profile(user_profile['result']['backendID'],
                                                                     access_token['access_token'])
-            print(request.session['profile'])
 
             return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
         else:
@@ -125,7 +124,7 @@ class DeRegister(PermissionRequiredMixin, TemplateView):
         return super().get(request, args, kwargs)
 
 
-class Report(PermissionRequiredMixin, ListView):
+class Report(BegeleiderRequiredMixin, ListView):
     template_name = 'report.html'
     model = Presence
 
