@@ -5,6 +5,9 @@ import datetime
 
 class Presence(models.Model):
 
+    class Meta:
+        unique_together = ('user', 'date')
+
     @staticmethod
     def next_friday():
         today = datetime.date.today()

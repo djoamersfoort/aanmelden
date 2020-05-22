@@ -21,13 +21,20 @@
         Er zijn nog {{ fri_avail }} plaatsen beschikbaar op Vrijdag<br>
         Er zijn nog {{ sat_avail }} plaatsen beschikbaar op Zaterdag<br>
     </p>
+    <p>
+        {% if reg_fri or reg_sat %}
+        <div class="alert alert-danger" role="alert">
+          Je hebt al geregistreerd voor aankomende vrijdag of zaterdag!
+        </div>
+        {% endif %}
+    </p>
     <p class="lead">
-        {% if fri_avail != 0 %}
+        {% if fri_avail != 0 and not reg_fri %}
         <a class="btn btn-primary btn-lg" href="{% url 'register' 'fri' %}" role="button">Aanmelden voor vrijdag-DJO</a>
         {% else %}
         <a class="btn btn-primary btn-lg" href="#" role="button">Aanmelden voor vrijdag-DJO niet mogelijk</a>
         {% endif %}
-        {% if sat_avail != 0 %}
+        {% if sat_avail != 0 and not reg_sat %}
         <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor zaterdag-DJO</a>
         {% else %}
         <a class="btn btn-primary btn-lg" href="#" role="button">Aanmelden voor zaterdag-DJO niet mogelijk</a>

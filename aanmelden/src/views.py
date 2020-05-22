@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
 import uuid
@@ -52,7 +53,8 @@ class LoginResponseView(View):
 
             auth_login(request, found_user)
             request.session['access_token'] = access_token
-            request.session['profile'] = MemberApi.get_user_profile(user_profile['result']['backendID'], access_token['access_token'])
+            request.session['profile'] = MemberApi.get_user_profile(user_profile['result']['backendID'],
+                                                                    access_token['access_token'])
             print(request.session['profile'])
 
             return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
@@ -71,10 +73,18 @@ class Main(PermissionRequiredMixin, TemplateView):
     template_name = 'main.html'
 
     def get(self, request, *args, **kwargs):
-        self.extra_context = {'fri_avail': Presence.slots_available(Presence.next_friday()),
-                         'sat_avail': Presence.slots_available(Presence.next_saturday()),
-                         'fri_taken': Presence.slots_taken(Presence.next_friday()),
-                         'sat_taken': Presence.slots_taken(Presence.next_saturday())}
+        fri = Presence.next_friday()
+        sat = Presence.next_saturday()
+        reg_fri = Presence.objects.filter(user=self.request.user, date=fri).count() > 0
+        reg_sat = Presence.objects.filter(user=self.request.user, date=sat).count() > 0
+        self.extra_context = {
+            'fri_avail': Presence.slots_available(Presence.next_friday()),
+            'sat_avail': Presence.slots_available(Presence.next_saturday()),
+            'fri_taken': Presence.slots_taken(Presence.next_friday()),
+            'sat_taken': Presence.slots_taken(Presence.next_saturday()),
+            'reg_fri': reg_fri,
+            'reg_sat': reg_sat
+        }
         return super().get(request, args, kwargs)
 
 
@@ -89,5 +99,9 @@ class Register(PermissionRequiredMixin, TemplateView):
             registration_date = Presence.next_saturday()
         presence.date = registration_date
         presence.user = request.user
-        presence.save()
+        try:
+            presence.save()
+        except IntegrityError:
+            # Already registered -> ignore
+            pass
         return super().get(request, args, kwargs)
