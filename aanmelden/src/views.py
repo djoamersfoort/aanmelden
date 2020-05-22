@@ -67,9 +67,27 @@ class LogoffView(PermissionRequiredMixin, View):
         return HttpResponse(content='Uitgelogd')
 
 
-class Main(TemplateView):
+class Main(PermissionRequiredMixin, TemplateView):
     template_name = 'main.html'
-    extra_context = {'fri_avail': Presence.slots_available(Presence.next_friday()),
-                     'sat_avail': Presence.slots_available(Presence.next_saturday()),
-                     'fri_taken': Presence.slots_taken(Presence.next_friday()),
-                     'sat_taken': Presence.slots_taken(Presence.next_saturday())}
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {'fri_avail': Presence.slots_available(Presence.next_friday()),
+                         'sat_avail': Presence.slots_available(Presence.next_saturday()),
+                         'fri_taken': Presence.slots_taken(Presence.next_friday()),
+                         'sat_taken': Presence.slots_taken(Presence.next_saturday())}
+        return super().get(request, args, kwargs)
+
+
+class Register(PermissionRequiredMixin, TemplateView):
+    template_name = 'registered.html'
+
+    def get(self, request, *args, **kwargs):
+        presence = Presence()
+        if kwargs.get('day') == 'fri':
+            registration_date = Presence.next_friday()
+        else:
+            registration_date = Presence.next_saturday()
+        presence.date = registration_date
+        presence.user = request.user
+        presence.save()
+        return super().get(request, args, kwargs)

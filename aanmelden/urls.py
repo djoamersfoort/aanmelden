@@ -20,6 +20,7 @@ from .src import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', views.Main.as_view(), name='main'),
+    path('register/day/<str:day>', views.Register.as_view(), name='register'),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
     path('', views.LoginView.as_view(), name='login')
 ]

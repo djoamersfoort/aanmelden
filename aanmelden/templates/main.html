@@ -17,15 +17,18 @@
         <br><br>
         Volgens onze administratie is je e-mailadres: {{ request.user.email }}.
     </p>
+    <p>
+        Er zijn nog {{ fri_avail }} plaatsen beschikbaar op Vrijdag<br>
+        Er zijn nog {{ sat_avail }} plaatsen beschikbaar op Zaterdag<br>
+    </p>
     <p class="lead">
         {% if fri_avail != 0 %}
-        <a class="btn btn-primary btn-lg" href="/aanmelden/dag/vrijdag" role="button">Aanmelden voor vrijdag-DJO</a>
+        <a class="btn btn-primary btn-lg" href="{% url 'register' 'fri' %}" role="button">Aanmelden voor vrijdag-DJO</a>
         {% else %}
         <a class="btn btn-primary btn-lg" href="#" role="button">Aanmelden voor vrijdag-DJO niet mogelijk</a>
         {% endif %}
         {% if sat_avail != 0 %}
-        <a class="btn btn-primary btn-lg" href="/aanmelden/dag/zaterdag" role="button">Aanmelden voor
-            zaterdag-DJO</a>
+        <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor zaterdag-DJO</a>
         {% else %}
         <a class="btn btn-primary btn-lg" href="#" role="button">Aanmelden voor zaterdag-DJO niet mogelijk</a>
         {% endif %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="jumbotron">
+
+    <h1 class="display-4">Bedankt voor je aanmelding, {{ request.user.first_name }}!</h1>
+    <p class="lead">Tot dan!</p>
+
+</div>
+
+{% endblock %}
