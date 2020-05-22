@@ -1,9 +1,9 @@
-from django.views.generic import View
-from django.views.generic import TemplateView
+from django.views.generic import View, ListView, TemplateView
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
 import uuid
@@ -123,3 +123,19 @@ class DeRegister(PermissionRequiredMixin, TemplateView):
             pass
 
         return super().get(request, args, kwargs)
+
+
+class Report(PermissionRequiredMixin, ListView):
+    template_name = 'report.html'
+    model = Presence
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context['fri'] = Presence.next_friday()
+        context['sat'] = Presence.next_saturday()
+        return context
+
+    def get_queryset(self):
+        fri = Presence.next_friday()
+        sat = Presence.next_saturday()
+        return Presence.objects.filter(Q(date=fri) | Q(date=sat))

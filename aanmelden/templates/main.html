@@ -22,10 +22,10 @@
     </p>
     <p>
         {% if reg_fri or reg_sat %}
-        <div class="alert alert-danger" role="alert">
-          Je hebt al geregistreerd voor aankomende vrijdag of zaterdag!
-        </div>
-        {% endif %}
+    <div class="alert alert-danger" role="alert">
+        Je hebt al geregistreerd voor aankomende vrijdag of zaterdag!
+    </div>
+    {% endif %}
     </p>
     <p class="lead">
         {% if fri_avail != 0 and not reg_fri %}
@@ -34,9 +34,11 @@
         <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'fri' %}" role="button">Afmelden voor vrijdag-DJO</a>
         {% endif %}
         {% if sat_avail != 0 and not reg_sat %}
-        <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor zaterdag-DJO</a>
+        <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor
+            zaterdag-DJO</a>
         {% elif reg_sat %}
-        <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'sat' %}" role="button">Afmelden voor zaterdag-DJO</a>
+        <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'sat' %}" role="button">Afmelden voor
+            zaterdag-DJO</a>
         {% endif %}
     </p>
 </div>

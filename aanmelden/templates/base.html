@@ -26,7 +26,7 @@
                 </li>
                 {% if 'begeleider' in request.session.profile.types %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Report</a>
+                    <a class="nav-link" href="{% url 'report' %}">Report</a>
                 </li>
                 {% endif %}
             </ul>

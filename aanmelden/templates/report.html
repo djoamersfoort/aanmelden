@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="jumbotron">
+
+    <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
+    <p class="lead">Een overzicht van leden voor de aankomende vrijdag en zaterdag</p>
+
+    <hr class="my-4">
+
+    <p>
+        Vrijdag {{ fri }}
+        <ul class="list-group">
+            {% for member in object_list %}
+                {% if member.date == fri %}
+                <li class="list-group-item">{{ member.user.first_name }} {{ member.user.last_name }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </p>
+
+    <p>
+        Zaterdag {{ sat }}
+        <ul class="list-group">
+            {% for member in object_list %}
+                {% if member.date == sat %}
+                <li class="list-group-item">{{ member.user.first_name }} {{ member.user.last_name }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </p>
+
+</div>
+
+{% endblock %}

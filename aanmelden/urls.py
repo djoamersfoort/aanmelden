@@ -22,6 +22,7 @@ urlpatterns = [
     path('main/', views.Main.as_view(), name='main'),
     path('register/day/<str:day>', views.Register.as_view(), name='register'),
     path('deregister/day/<str:day>', views.DeRegister.as_view(), name='deregister'),
+    path('report/', views.Report.as_view(), name='report'),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
     path('', views.LoginView.as_view(), name='login')
 ]
