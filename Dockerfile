@@ -19,7 +19,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 
 COPY aanmelden/ /srv/aanmelden/
+COPY manage.py  /srv
 
-WORKDIR /srv/aanmelden
+WORKDIR /srv
 COPY start.sh /
 ENTRYPOINT ["/start.sh"]
