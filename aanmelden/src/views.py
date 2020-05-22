@@ -77,10 +77,10 @@ class Main(PermissionRequiredMixin, TemplateView):
         reg_fri = Presence.objects.filter(user=self.request.user, date=fri).count() > 0
         reg_sat = Presence.objects.filter(user=self.request.user, date=sat).count() > 0
         self.extra_context = {
-            'fri_avail': Presence.slots_available(Presence.next_friday()),
-            'sat_avail': Presence.slots_available(Presence.next_saturday()),
-            'fri_taken': Presence.slots_taken(Presence.next_friday()),
-            'sat_taken': Presence.slots_taken(Presence.next_saturday()),
+            'fri_avail': Presence.slots_available(fri),
+            'sat_avail': Presence.slots_available(sat),
+            'fri_taken': Presence.slots_taken(fri),
+            'sat_taken': Presence.slots_taken(sat),
             'reg_fri': reg_fri,
             'reg_sat': reg_sat,
             'fri': fri,
