@@ -42,7 +42,7 @@
                 <div class="card-body">
                     <h4 class="card-title"><i class="far fa-calendar-{% if reg_sat %}check{% else %}alt{% endif %}"></i> Zaterdag</h4>
                     <div class="small">{{ sat }}</div>
-                    <p class="card-text my-2">Op zaterdag zijn er nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
+                    <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">
                     {% if sat_avail != 0 and not reg_sat %}
