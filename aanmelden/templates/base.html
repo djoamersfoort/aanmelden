@@ -3,6 +3,10 @@
 <html>
 
 <head>
+    <title>Aanmelden | DJO Amersfoort</title>
+
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
     <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
@@ -21,12 +25,12 @@
 
         <div class="collapse navbar-collapse" id="nav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'main' %}">Home</a>
+                <li class="nav-item {% if request.resolver_match.url_name == 'main' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'main' %}"><i class="fas fa-home"></i> Home</a>
                 </li>
                 {% if 'begeleider' in request.session.profile.types %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'report' %}">Report</a>
+                <li class="nav-item {% if request.resolver_match.url_name == 'report' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'report' %}"><i class="fas fa-pencil-alt"></i> Report</a>
                 </li>
                 {% endif %}
             </ul>

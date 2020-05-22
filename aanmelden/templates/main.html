@@ -3,44 +3,81 @@
 
 {% block content %}
 
-<div class="jumbotron">
+<div class="jumbotron text-center">
+    <div class="container">
+        <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
+        <p class="lead">Je kunt je hier aanmelden voor DJO voor komende vrijdag of zaterdag</p>
 
-    <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
-    <p class="lead">Je kunt je hier aanmelden voor DJO voor komende vrijdag of zaterdag</p>
+        <hr class="my-4">
+        <p>Het aanmelden is nodig om te voorkomen dat er teveel leden aanwezig zijn en we geen 1,5 meter afstand kunnen
+            garanderen.
+            <br><br>
+            Controleer voordat je je aanmeldt of je gegevens juist zijn! Zo kunnen we je bij bijzonderheden bereiken.
+            <br>
+            Volgens onze administratie is je e-mailadres: <b>{{ request.user.email }}</b>.
+        </p>
 
-    <hr class="my-4">
-    <p>Het aanmelden is nodig om te voorkomen dat er teveel leden aanwezig zijn en we geen 1,5 meter afstand kunnen
-        garanderen.
-        <br><br>
-        Controleer voordat je je aanmeldt of je gegevens juist zijn! Zo kunnen we je bij bijzonderheden bereiken.
-        <br><br>
-        Volgens onze administratie is je e-mailadres: {{ request.user.email }}.
-    </p>
-    <p>
-        Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plaatsen beschikbaar op Vrijdag<br>
-        Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plaatsen beschikbaar op Zaterdag<br>
-    </p>
-    <p>
+        <!-- <p>
+            Er zijn nog <span class="badge badge-{% if fri_avail < 6 %}danger{% else %}primary{% endif %}">{{ fri_avail }}</span> plaatsen beschikbaar op Vrijdag<br>
+            Er zijn nog <span class="badge badge-{% if sat_avail < 6 %}danger{% else %}primary{% endif %}">{{ sat_avail }}</span> plaatsen beschikbaar op Zaterdag<br>
+        </p>
+        <p>
         {% if reg_fri or reg_sat %}
-    <div class="alert alert-danger" role="alert">
-        Je hebt al geregistreerd voor aankomende vrijdag of zaterdag!
+        <div class="alert alert-danger" role="alert">
+            Je hebt al geregistreerd voor aankomende vrijdag of zaterdag!
+        </div>
+        {% endif %}
+        </p>
+        <p class="lead">
+            {% if fri_avail != 0 and not reg_fri %}
+            <a class="btn btn-primary btn-lg" href="{% url 'register' 'fri' %}" role="button">Aanmelden voor vrijdag-DJO</a>
+            {% elif reg_fri %}
+            <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'fri' %}" role="button">Afmelden voor vrijdag-DJO</a>
+            {% endif %}
+            {% if sat_avail != 0 and not reg_sat %}
+            <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor
+                zaterdag-DJO</a>
+            {% elif reg_sat %}
+            <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'sat' %}" role="button">Afmelden voor
+                zaterdag-DJO</a>
+            {% endif %}
+        </p> -->
     </div>
-    {% endif %}
-    </p>
-    <p class="lead">
-        {% if fri_avail != 0 and not reg_fri %}
-        <a class="btn btn-primary btn-lg" href="{% url 'register' 'fri' %}" role="button">Aanmelden voor vrijdag-DJO</a>
-        {% elif reg_fri %}
-        <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'fri' %}" role="button">Afmelden voor vrijdag-DJO</a>
-        {% endif %}
-        {% if sat_avail != 0 and not reg_sat %}
-        <a class="btn btn-primary btn-lg" href="{% url 'register' 'sat' %}" role="button">Aanmelden voor
-            zaterdag-DJO</a>
-        {% elif reg_sat %}
-        <a class="btn btn-danger btn-lg" href="{% url 'deregister' 'sat' %}" role="button">Afmelden voor
-            zaterdag-DJO</a>
-        {% endif %}
-    </p>
+</div>
+
+<div class="container mt-5 text-center">
+    <div class="row">
+        <div class="col-sm">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Vrijdag</h4>
+                    <p class="card-text">Op vrijdag zijn er nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
+                </div>
+                <div class="card-footer p-0">
+                    {% if fri_avail != 0 and not reg_fri %}
+                    <a class="btn btn-primary btn-block" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
+                    {% elif reg_fri %}
+                    <a class="btn btn-link btn-block" href="{% url 'deregister' 'fri' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm my-sm-0 my-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Zaterdag</h4>
+                    <p class="card-text">Op zaterdag zijn er nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
+                </div>
+                <div class="card-footer p-0">
+                    {% if sat_avail != 0 and not reg_sat %}
+                    <a class="btn btn-primary btn-block" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
+                    {% elif reg_sat %}
+                    <a class="btn btn-link btn-block" href="{% url 'deregister' 'sat' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
