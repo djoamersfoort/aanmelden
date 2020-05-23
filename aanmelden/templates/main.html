@@ -25,7 +25,7 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> Vrijdag</h4></div>
-                    <div class="small">{{ fri }}</div>
+                    <div class="small">{% if reg_fri %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ fri }}</div>
                     <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">
@@ -41,7 +41,7 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <h4 class="card-title"><i class="far fa-calendar-{% if reg_sat %}check{% else %}alt{% endif %}"></i> Zaterdag</h4>
-                    <div class="small">{{ sat }}</div>
+                    <div class="small">{% if reg_sat %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ sat }}</div>
                     <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
                 </div>
                 <div class="card-footer p-0">

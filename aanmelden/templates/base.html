@@ -8,8 +8,10 @@
     <link rel="shortcut icon" href="{% static 'favicon.png' %}">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css">
     <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 
     <script src="{% static 'jquery-3.5.1.slim.min.js' %}" charset="utf-8"></script>
     <script src="{% static 'popper.min.js' %}" charset="utf-8"></script>
@@ -19,7 +21,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="{% url 'main' %}">
-            <img height="45px" src="{% static 'logo.png' %}" class="mr-2"> DJO Aanmeldsite
+            <img src="{% static 'logo.png' %}" class="mr-2"> DJO Aanmeldsite
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav"
             aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
