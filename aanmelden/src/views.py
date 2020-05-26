@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
+from django.shortcuts import reverse
 import uuid
 from .memberapi import MemberApi
 from .mixins import PermissionRequiredMixin, BegeleiderRequiredMixin
@@ -56,7 +57,10 @@ class LoginResponseView(View):
             request.session['profile'] = MemberApi.get_user_profile(user_profile['result']['backendID'],
                                                                     access_token['access_token'])
 
-            return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+            if 'begeleider' in request.session['profile']['types']:
+                return HttpResponseRedirect(reverse('report'))
+            else:
+                return HttpResponseRedirect(reverse('main'))
         else:
             return HttpResponseForbidden('IDP Login mislukt')
 
