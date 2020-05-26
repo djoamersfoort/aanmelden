@@ -75,12 +75,13 @@ class LogoffView(PermissionRequiredMixin, View):
 class Main(PermissionRequiredMixin, TemplateView):
     template_name = 'main.html'
 
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
         fri = Presence.next_friday()
         sat = Presence.next_saturday()
         reg_fri = Presence.objects.filter(user=self.request.user, date=fri).count() > 0
         reg_sat = Presence.objects.filter(user=self.request.user, date=sat).count() > 0
-        self.extra_context = {
+        context.update({
             'fri_avail': Presence.slots_available(fri),
             'sat_avail': Presence.slots_available(sat),
             'fri_taken': Presence.slots_taken(fri),
@@ -89,8 +90,8 @@ class Main(PermissionRequiredMixin, TemplateView):
             'reg_sat': reg_sat,
             'fri': fri,
             'sat': sat
-        }
-        return super().get(request, args, kwargs)
+        })
+        return context
 
 
 class Register(PermissionRequiredMixin, TemplateView):
