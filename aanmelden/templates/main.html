@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head_content %}
+    {{ block.super }}
+    <script src="{% static 'js/main.js' %}" charset="utf-8"></script>
+{% endblock %}
+
 {% block content %}
 
 <div class="jumbotron text-center">
@@ -9,13 +14,11 @@
         <p class="lead">Je kunt je hier aanmelden voor DJO voor komende vrijdag of zaterdag</p>
 
         <hr class="my-4">
-        <p>Het aanmelden is nodig om te voorkomen dat er teveel leden aanwezig zijn en we geen 1,5 meter afstand kunnen
-            garanderen.
-            <br><br>
-            Controleer voordat je je aanmeldt of je gegevens juist zijn! Zo kunnen we je bij bijzonderheden bereiken.
-            <br>
-            Volgens onze administratie is je e-mailadres: <b>{{ request.user.email }}</b>.
-        </p>
+
+        <div class="container">
+            Door maximaal 16 leden toe te laten houden we de DJO veilig voor zowel begeleiders als leden.<br>
+            Het is belangrijk dat je 1.5 meter afstand houdt, en dat je bij verkoudheidsklachten thuis blijft.
+        </div>
     </div>
 </div>
 
@@ -31,9 +34,9 @@
                 {% if not 'begeleider' in request.session.profile.types %}
                 <div class="card-footer p-0">
                     {% if fri_avail != 0 and not reg_fri %}
-                    <a class="btn btn-primary btn-block" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
+                    <a class="btn btn-primary btn-block register" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
                     {% elif reg_fri %}
-                    <a class="btn btn-link btn-block" href="{% url 'deregister' 'fri' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                    <a class="btn btn-link btn-block register" href="{% url 'deregister' 'fri' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -49,12 +52,54 @@
                 {% if not 'begeleider' in request.session.profile.types %}
                 <div class="card-footer p-0">
                     {% if sat_avail != 0 and not reg_sat %}
-                    <a class="btn btn-primary btn-block" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
+                    <a class="btn btn-primary btn-block register" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
                     {% elif reg_sat %}
-                    <a class="btn btn-link btn-block" href="{% url 'deregister' 'sat' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                    <a class="btn btn-link btn-block register" href="{% url 'deregister' 'sat' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
                     {% endif %}
                 </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modals -->
+
+<div class="modal fade verify-email">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Controleer Gegevens</h5>
+            </div>
+            <div class="modal-body text-center">
+                Het is belangrijk dat we je kunnen bereiken bij bijzonderheden.<br>
+                In onze administratie is jouw email <b>{{ request.user.email }}</b>,<br>
+                Klopt dit email-adres?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary verify-btn-confirm">Ja, die klopt!</button>
+                <button type="button" class="btn btn-secondary verify-btn-deny">Nee, die klopt niet..</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade change-email">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Wijziging Email</h5>
+            </div>
+            <div class="modal-body text-center">
+                Je hebt aangegeven dat je email-adres niet klopt.
+                Het is belangrijk dat je dit aangeeft bij Ronald,
+                Zodat het aangepast kan worden.
+                Je kan Ronald bereiken via <a href="https://t.me/Moes17t" target="_blank">Telegram</a>.
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Duidelijk</button>
             </div>
         </div>
     </div>
