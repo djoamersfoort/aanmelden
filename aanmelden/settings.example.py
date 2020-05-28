@@ -113,6 +113,7 @@ STATICFILES_DIRS = (
 
 # IDP Settings
 LOGIN_REDIRECT_URL = '/main/'
+LOGIN_URL = '/'
 IDP_CLIENT_ID = '<idp client id>'
 IDP_CLIENT_SECRET = '<idp client secret>'
 IDP_REDIRECT_URL = 'http://localhost:8000/oauth/'
