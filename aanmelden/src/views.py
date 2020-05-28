@@ -66,10 +66,10 @@ class LoginResponseView(View):
 
 
 class LogoffView(PermissionRequiredMixin, View):
-
     def get(self, request, *args, **kwargs):
         logout(request)
-        return HttpResponse(content='Uitgelogd')
+
+        return HttpResponse("Je bent succesvol uitgelogd.")
 
 
 class Main(PermissionRequiredMixin, TemplateView):
