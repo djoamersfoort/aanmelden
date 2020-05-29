@@ -23,17 +23,12 @@
 </div>
 
 <div class="container mt-5 text-center">
-
-    {% now "Y-m-d" as todays_date %}
-
-    {% if todays_date < "2020-06-02" %}
-    <div class="container my-4">
+    <div class="container my-4 pre-alert" style="display:none;">
         <div class="alert alert-dismissible alert-warning">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <p class="mb-0">De DJO gaat pas open vanaf 2 juni. Inschrijven voor eerdere weken heeft dus geen nut!</p>
         </div>
     </div>
-    {% endif %}
 
     <div class="row">
         <div class="col-sm">
