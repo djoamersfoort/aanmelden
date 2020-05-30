@@ -52,11 +52,10 @@ class LoginResponseView(View):
             found_user.save()
 
             auth_login(request, found_user)
-            backend_profile = DjoUser.get_user_profile(user_profile['result']['backendID'],
-                                                       access_token['access_token'])
-            self.request.session['profile'] = backend_profile
+            account_type = user_profile['result']['accountType']
+            self.request.session['account_type'] = account_type
 
-            if DjoUser.is_begeleider(backend_profile):
+            if DjoUser.is_begeleider(account_type):
                 return HttpResponseRedirect(reverse('report'))
             else:
                 return HttpResponseRedirect(reverse('main'))

@@ -6,7 +6,7 @@ class PermissionRequiredMixin(UserPassesTestMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_begeleider'] = DjoUser.is_begeleider(self.request.session['profile'])
+        context['is_begeleider'] = DjoUser.is_begeleider(self.request.session['account_type'])
         return context
 
     def test_func(self):
@@ -20,8 +20,8 @@ class BegeleiderRequiredMixin(UserPassesTestMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_begeleider'] = DjoUser.is_begeleider(self.request.session['profile'])
+        context['is_begeleider'] = self.test_func()
         return context
 
     def test_func(self):
-        return DjoUser.is_begeleider(self.request.session['profile'])
+        return DjoUser.is_begeleider(self.request.session['account_type'])

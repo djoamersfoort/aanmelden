@@ -121,6 +121,4 @@ IDP_AUTHORIZE_URL = 'https://idp.djoamersfoort.nl/oauth/authorize'
 IDP_TOKEN_URL = 'https://idp.djoamersfoort.nl/oauth/token'
 IDP_API_URL = 'https://idp.djoamersfoort.nl/api/primus/user/all'
 
-LEDEN_ADMIN_API_URL = 'https://leden.djoamersfoort.nl/api/v1/smoelenboek'
-
 SLOTS = 16

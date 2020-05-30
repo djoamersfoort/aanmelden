@@ -10,20 +10,10 @@ class DjoUser(User):
         proxy = True
 
     @staticmethod
-    def is_begeleider(profile):
-        types = profile['types'].split(',')
+    def is_begeleider(account_type):
+        types = account_type.split(',')
         print(types)
-        return 'begeleider' in types or 'aspirant' in types or 'ondersteuning' in types
-
-    @staticmethod
-    def get_user_profile(userid, access_token):
-        userid = userid.replace('u-', '')
-        url = f'{settings.LEDEN_ADMIN_API_URL}/{userid}/'
-        response = requests.get(url, headers={'Authorization': f'IDP {access_token}'})
-        if not response.ok:
-            raise ValueError(f"Unable to retrieve user profile: {response.content}")
-
-        return response.json()
+        return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
 
 
 class Presence(models.Model):
