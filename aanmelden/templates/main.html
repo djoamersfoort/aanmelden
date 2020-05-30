@@ -31,7 +31,7 @@
                     <div class="small">{% if reg_fri %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ fri }}</div>
                     <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
                 </div>
-                {% if not 'begeleider' in request.session.profile.types %}
+                {% if not is_begeleider %}
                 <div class="card-footer p-0">
                     {% if fri_avail != 0 and not reg_fri %}
                     <a class="btn btn-primary btn-block register" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
@@ -49,7 +49,7 @@
                     <div class="small">{% if reg_sat %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ sat }}</div>
                     <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
                 </div>
-                {% if not 'begeleider' in request.session.profile.types %}
+                {% if not is_begeleider %}
                 <div class="card-footer p-0">
                     {% if sat_avail != 0 and not reg_sat %}
                     <a class="btn btn-primary btn-block register" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>

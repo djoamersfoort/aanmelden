@@ -1,16 +1,14 @@
 from django.views.generic import View, ListView, TemplateView
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
-from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
 from django.shortcuts import reverse
 import uuid
-from .memberapi import MemberApi
 from .mixins import PermissionRequiredMixin, BegeleiderRequiredMixin
-from .models import Presence
+from .models import Presence, DjoUser
 
 
 class LoginView(View):
@@ -41,23 +39,24 @@ class LoginResponseView(View):
             username = "idp-{0}".format(user_profile['result']['id'])
 
             try:
-                found_user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                found_user = User()
+                found_user = DjoUser.objects.get(username=username)
+            except DjoUser.DoesNotExist:
+                found_user = DjoUser()
                 found_user.username = username
                 found_user.password = uuid.uuid4()
-                found_user.email = user_profile['result']['email']
-                found_user.first_name = user_profile['result']['firstName']
-                found_user.last_name = user_profile['result']['lastName']
-                found_user.is_superuser = True
-                found_user.save()
+
+            found_user.email = user_profile['result']['email']
+            found_user.first_name = user_profile['result']['firstName']
+            found_user.last_name = user_profile['result']['lastName']
+            found_user.is_superuser = True
+            found_user.save()
 
             auth_login(request, found_user)
-            request.session['access_token'] = access_token
-            request.session['profile'] = MemberApi.get_user_profile(user_profile['result']['backendID'],
-                                                                    access_token['access_token'])
+            backend_profile = DjoUser.get_user_profile(user_profile['result']['backendID'],
+                                                       access_token['access_token'])
+            self.request.session['profile'] = backend_profile
 
-            if 'begeleider' in request.session['profile']['types']:
+            if DjoUser.is_begeleider(backend_profile):
                 return HttpResponseRedirect(reverse('report'))
             else:
                 return HttpResponseRedirect(reverse('main'))
@@ -76,7 +75,7 @@ class Main(PermissionRequiredMixin, TemplateView):
     template_name = 'main.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data()
+        context = super().get_context_data(**kwargs)
         fri = Presence.next_friday()
         sat = Presence.next_saturday()
         reg_fri = Presence.objects.filter(user=self.request.user, date=fri).count() > 0
