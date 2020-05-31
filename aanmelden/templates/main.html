@@ -10,7 +10,7 @@
 
 <div class="jumbotron text-center">
     <div class="container">
-        <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
+        <h1 class="display-4">Hallo {{ user.first_name }}!</h1>
         <p class="lead">Je kunt je hier aanmelden voor DJO voor komende vrijdag of zaterdag</p>
 
         <hr class="my-4">
@@ -23,12 +23,6 @@
 </div>
 
 <div class="container mt-5 text-center">
-    <div class="container my-4 pre-alert" style="display:none;">
-        <div class="alert alert-dismissible alert-warning">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <p class="mb-0">De DJO gaat pas open vanaf 2 juni. Inschrijven voor eerdere weken heeft dus geen nut!</p>
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-sm">
@@ -38,7 +32,7 @@
                     <div class="small">{% if reg_fri %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ fri }}</div>
                     <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
                 </div>
-                {% if not is_begeleider %}
+                {% if not user.is_superuser %}
                 <div class="card-footer p-0">
                     {% if fri_avail != 0 and not reg_fri %}
                     <a class="btn btn-primary btn-block register" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
@@ -56,7 +50,7 @@
                     <div class="small">{% if reg_sat %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ sat }}</div>
                     <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
                 </div>
-                {% if not is_begeleider %}
+                {% if not user.is_superuser %}
                 <div class="card-footer p-0">
                     {% if sat_avail != 0 and not reg_sat %}
                     <a class="btn btn-primary btn-block register" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
@@ -80,7 +74,7 @@
             </div>
             <div class="modal-body text-center">
                 Het is belangrijk dat we je kunnen bereiken bij bijzonderheden.<br>
-                In onze administratie is jouw email <b>{{ request.user.email }}</b>,<br>
+                In onze administratie is jouw email <b>{{ user.email }}</b>,<br>
                 Klopt dit email-adres?
             </div>
 

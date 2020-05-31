@@ -11,7 +11,6 @@ class DjoUser(User):
     @staticmethod
     def is_begeleider(account_type):
         types = account_type.split(',')
-        print(types)
         return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
 
 

@@ -6,8 +6,8 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
 from django.shortcuts import reverse
-import uuid
-from .mixins import PermissionRequiredMixin, BegeleiderRequiredMixin
+from .mixins import BegeleiderRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Presence, DjoUser
 
 
@@ -43,19 +43,18 @@ class LoginResponseView(View):
             except DjoUser.DoesNotExist:
                 found_user = DjoUser()
                 found_user.username = username
-                found_user.password = uuid.uuid4()
+                found_user.set_unusable_password()
 
             found_user.email = user_profile['result']['email']
             found_user.first_name = user_profile['result']['firstName']
             found_user.last_name = user_profile['result']['lastName']
-            found_user.is_superuser = True
+            account_type = user_profile['result']['accountType']
+            found_user.is_superuser = DjoUser.is_begeleider(account_type)
             found_user.save()
 
             auth_login(request, found_user)
-            account_type = user_profile['result']['accountType']
-            self.request.session['account_type'] = account_type
 
-            if DjoUser.is_begeleider(account_type):
+            if DjoUser.is_superuser:
                 return HttpResponseRedirect(reverse('report'))
             else:
                 return HttpResponseRedirect(reverse('main'))
@@ -63,14 +62,14 @@ class LoginResponseView(View):
             return HttpResponseForbidden('IDP Login mislukt')
 
 
-class LogoffView(PermissionRequiredMixin, View):
+class LogoffView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         logout(request)
 
         return HttpResponse("Je bent succesvol uitgelogd.")
 
 
-class Main(PermissionRequiredMixin, TemplateView):
+class Main(LoginRequiredMixin, TemplateView):
     template_name = 'main.html'
 
     def get_context_data(self, **kwargs):
@@ -92,7 +91,7 @@ class Main(PermissionRequiredMixin, TemplateView):
         return context
 
 
-class Register(PermissionRequiredMixin, TemplateView):
+class Register(LoginRequiredMixin, TemplateView):
     template_name = 'registered.html'
 
     def get(self, request, *args, **kwargs):
@@ -112,7 +111,7 @@ class Register(PermissionRequiredMixin, TemplateView):
         return super().get(request, args, kwargs)
 
 
-class DeRegister(PermissionRequiredMixin, TemplateView):
+class DeRegister(LoginRequiredMixin, TemplateView):
     template_name = 'deregistered.html'
 
     def get(self, request, *args, **kwargs):
