@@ -18,12 +18,4 @@ $(document).ready(function() {
         $(".verify-email").modal("hide");
         $(".change-email").modal("show");
     });
-
-    if(new Date() < new Date("2020-06-02") && !sessionStorage.hidePreAlert) {
-      $(".pre-alert").show();
-    }
-
-    $(".pre-alert button").click(function() {
-      sessionStorage.hidePreAlert = true;
-    });
 });

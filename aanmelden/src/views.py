@@ -54,7 +54,7 @@ class LoginResponseView(View):
 
             auth_login(request, found_user)
 
-            if DjoUser.is_superuser:
+            if found_user.is_superuser:
                 return HttpResponseRedirect(reverse('report'))
             else:
                 return HttpResponseRedirect(reverse('main'))
