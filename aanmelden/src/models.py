@@ -13,6 +13,9 @@ class DjoUser(User):
         types = account_type.split(',')
         return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.username})"
+
 
 class Presence(models.Model):
 
