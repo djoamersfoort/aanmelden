@@ -45,3 +45,4 @@ class Presence(models.Model):
 
     user = models.ForeignKey(DjoUser, models.CASCADE)
     date = models.DateField()
+    seen = models.BooleanField(default=False)

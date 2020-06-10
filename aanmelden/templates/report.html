@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head_content %}
+    {{ block.super }}
+    <script src="{% static 'js/report.js' %}" charset="utf-8"></script>
+{% endblock %}
+
+
 {% block content %}
 
 <div class="jumbotron text-center">
@@ -17,13 +23,16 @@
                     <h4 class="card-title"><i class="far fa-calendar-alt"></i> Vrijdag</h4>
                     <div class="small">{{ fri }}</div>
                     <p class="card-text">
-                        <ul>
-                            {% for member in object_list %}
-                                {% if member.date == fri %}
-                                <li>{{ member.user.first_name }} {{ member.user.last_name }}</li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
+                    {% for member in object_list %}
+                        {% if member.date == fri %}
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
+                          <label class="form-check-label" for="{{ member.id }}">
+                            {{ member.user.first_name }} {{ member.user.last_name }}
+                          </label>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
                     </p>
                 </div>
             </div>
@@ -34,13 +43,16 @@
                     <h4 class="card-title"><i class="far fa-calendar-alt"></i> Zaterdag</h4>
                     <div class="small">{{ sat }}</div>
                     <p class="card-text">
-                        <ul>
-                            {% for member in object_list %}
-                                {% if member.date == sat %}
-                                <li>{{ member.user.first_name }} {{ member.user.last_name }}</li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
+                    {% for member in object_list %}
+                        {% if member.date == sat %}
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
+                          <label class="form-check-label" for="{{ member.id }}">
+                            {{ member.user.first_name }} {{ member.user.last_name }}
+                          </label>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
                     </p>
                 </div>
             </div>

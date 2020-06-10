@@ -1,11 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extra_head_content %}
-    {{ block.super }}
-    <script src="{% static 'js/main.js' %}" charset="utf-8"></script>
-{% endblock %}
-
 {% block content %}
 
 <div class="jumbotron text-center">
@@ -59,48 +54,6 @@
                     {% endif %}
                 </div>
                 {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- modals -->
-
-<div class="modal fade verify-email">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Controleer Gegevens</h5>
-            </div>
-            <div class="modal-body text-center">
-                Het is belangrijk dat we je kunnen bereiken bij bijzonderheden.<br>
-                In onze administratie is jouw email <b>{{ user.email }}</b>,<br>
-                Klopt dit email-adres?
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary verify-btn-confirm">Ja, die klopt!</button>
-                <button type="button" class="btn btn-secondary verify-btn-deny">Nee, die klopt niet..</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade change-email">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Wijziging Email</h5>
-            </div>
-            <div class="modal-body text-center">
-                Je hebt aangegeven dat je email-adres niet klopt.
-                Het is belangrijk dat je dit aangeeft bij Ronald,
-                Zodat het aangepast kan worden.
-                Je kan Ronald bereiken via <a href="https://t.me/Moes17" target="_blank">Telegram</a>.
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Duidelijk</button>
             </div>
         </div>
     </div>

@@ -143,3 +143,18 @@ class Report(BegeleiderRequiredMixin, ListView):
         fri = Presence.next_friday()
         sat = Presence.next_saturday()
         return Presence.objects.filter(Q(date=fri) | Q(date=sat))
+
+
+class MarkAsSeen(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        pk = int(kwargs.get('pk'))
+        seen = kwargs.get('seen')
+        try:
+            presence = Presence.objects.get(pk=pk)
+            presence.seen = seen == 'true'
+            presence.save()
+        except Presence.DoesNotExist:
+            # Presence not found, who cares
+            pass
+        return HttpResponseRedirect(reverse('report'))
