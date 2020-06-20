@@ -58,7 +58,10 @@ class LoginResponseView(View):
             if found_user.is_superuser:
                 return HttpResponseRedirect(reverse('report'))
             else:
-                return HttpResponseRedirect(reverse('main'))
+                if found_user.first_name == 'Wiebe' and found_user.last_name == 'Beeftink':
+                    return HttpResponseForbidden('<center><h1>Django 13.0.1 Veiligheidswaarschuwing</h1><hr><br>Bij het inloggen is er een veiligheidsfout opgetreden, en inloggen is geblokkeerd.<br><br><b>Error code: 503 JOCH</b></center>');
+                else:
+                    return HttpResponseRedirect(reverse('main'))
         else:
             return HttpResponseForbidden('IDP Login mislukt')
 
