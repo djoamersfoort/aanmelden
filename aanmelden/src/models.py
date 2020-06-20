@@ -7,6 +7,7 @@ import datetime
 class DjoUser(User):
     class Meta:
         proxy = True
+        ordering = ["first_name", "last_name"]
 
     @staticmethod
     def is_begeleider(account_type):
