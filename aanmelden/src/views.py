@@ -1,11 +1,12 @@
 from django.views.generic import View, ListView, TemplateView
+from django.views.generic.edit import CreateView
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
-from django.shortcuts import reverse
+from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Presence, DjoUser
@@ -158,3 +159,24 @@ class MarkAsSeen(LoginRequiredMixin, View):
             # Presence not found, who cares
             pass
         return HttpResponseRedirect(reverse('report'))
+
+
+class RegisterManual(BegeleiderRequiredMixin, CreateView):
+    template_name = 'register_manual.html'
+    model = Presence
+    fields = ['user']
+    success_url = reverse_lazy('report')
+
+    def form_valid(self, form):
+        if self.kwargs.get('day') == 'fri':
+            form.instance.date = Presence.next_friday()
+        else:
+            form.instance.date = Presence.next_saturday()
+        return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except IntegrityError:
+            # Already registered -> ignore
+            return HttpResponseRedirect(reverse('report'))

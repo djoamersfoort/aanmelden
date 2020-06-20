@@ -2,3 +2,4 @@ django
 requests-oauthlib
 requests
 gunicorn
+django-widget-tweaks

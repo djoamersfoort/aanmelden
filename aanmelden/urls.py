@@ -22,6 +22,7 @@ urlpatterns = [
     path('main/', views.Main.as_view(), name='main'),
     path('register/day/<str:day>', views.Register.as_view(), name='register'),
     path('register/seen/<int:pk>/<str:seen>', views.MarkAsSeen.as_view(), name='seen'),
+    path('register/manual/<str:day>', views.RegisterManual.as_view(), name='register-manual'),
     path('deregister/day/<str:day>', views.DeRegister.as_view(), name='deregister'),
     path('report/', views.Report.as_view(), name='report'),
     path('logoff/', views.LogoffView.as_view(), name='logoff'),

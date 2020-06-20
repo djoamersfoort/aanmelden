@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="jumbotron text-center">
+    <div class="container">
+        <h1 class="display-4">Hallo {{ user.first_name }}!</h1>
+        <p class="lead">Als begeleider kun je hier een lid of gast handmatig aanmelden</p>
+
+        <hr class="my-4">
+    </div>
+</div>
+
+<form method="post">
+    <div class="container">
+        <div class="form-row justify-content-center">
+            <div class="form-group col-md-4">
+                {% csrf_token %}
+
+                {% render_field form.user title="Lid" class+="form-control" %}
+
+                <input class="btn btn-primary btn-block" type="submit" value="Aanmelden">
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
