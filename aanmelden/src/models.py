@@ -35,7 +35,14 @@ class Presence(models.Model):
 
     @staticmethod
     def slots_available(on_date):
-        return settings.SLOTS - Presence.slots_taken(on_date)
+        slots_available = settings.SLOTS
+        try:
+            special_date = SpecialDate.objects.get(date=on_date)
+            slots_available = special_date.free_slots
+        except SpecialDate.DoesNotExist:
+            pass
+
+        return slots_available - Presence.slots_taken(on_date)
 
     @staticmethod
     def slots_taken(on_date):
@@ -47,3 +54,22 @@ class Presence(models.Model):
     user = models.ForeignKey(DjoUser, models.CASCADE)
     date = models.DateField()
     seen = models.BooleanField(default=False)
+
+
+class SpecialDate(models.Model):
+    date = models.DateField()
+    free_slots = models.IntegerField()
+    closed = models.BooleanField()
+
+    @staticmethod
+    def is_closed(on_date):
+        try:
+            special_date = SpecialDate.objects.get(date=on_date)
+            closed = special_date.closed
+        except SpecialDate.DoesNotExist:
+            closed = False
+
+        return closed
+
+    def __str__(self):
+        return f"{self.date}, Slots: {self.free_slots}, Closed: {self.closed}"

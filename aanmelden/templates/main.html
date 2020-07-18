@@ -25,14 +25,18 @@
                 <div class="card-body">
                     <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> Vrijdag</h4></div>
                     <div class="small">{% if reg_fri %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ fri }}</div>
-                    <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
+                    {% if fri_closed %}
+                      <p class="card-text my-2">DJO is vandaag gesloten!</p>
+                    {% else %}
+                      <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ fri_avail }}</span> plekken beschikbaar.</p>
+                    {% endif %}
                 </div>
                 {% if not user.is_superuser %}
                 <div class="card-footer p-0">
-                    {% if fri_avail != 0 and not reg_fri %}
-                    <a class="btn btn-primary btn-block register" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
+                    {% if fri_avail != 0 and not reg_fri and not fri_closed %}
+                      <a class="btn btn-primary btn-block register" href="{% url 'register' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
                     {% elif reg_fri %}
-                    <a class="btn btn-link btn-block register" href="{% url 'deregister' 'fri' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                      <a class="btn btn-link btn-block register" href="{% url 'deregister' 'fri' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -43,14 +47,18 @@
                 <div class="card-body">
                     <h4 class="card-title"><i class="far fa-calendar-{% if reg_sat %}check{% else %}alt{% endif %}"></i> Zaterdag</h4>
                     <div class="small">{% if reg_sat %}<i>Je bent hier voor aangemeld!</i><br>{% endif %}{{ sat }}</div>
-                    <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
+                    {% if sat_closed %}
+                      <p class="card-text my-2">DJO is vandaag gesloten!</p>
+                    {% else %}
+                      <p class="card-text my-2">Er zijn nog <span class="badge badge-primary">{{ sat_avail }}</span> plekken beschikbaar.</p>
+                    {% endif %}
                 </div>
                 {% if not user.is_superuser %}
                 <div class="card-footer p-0">
-                    {% if sat_avail != 0 and not reg_sat %}
-                    <a class="btn btn-primary btn-block register" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
+                    {% if sat_avail != 0 and not reg_sat and not sat_closed %}
+                      <a class="btn btn-primary btn-block register" href="{% url 'register' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
                     {% elif reg_sat %}
-                    <a class="btn btn-link btn-block register" href="{% url 'deregister' 'sat' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                      <a class="btn btn-link btn-block register" href="{% url 'deregister' 'sat' %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
                     {% endif %}
                 </div>
                 {% endif %}

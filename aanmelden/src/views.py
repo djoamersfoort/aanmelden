@@ -9,7 +9,7 @@ from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Presence, DjoUser
+from .models import Presence, DjoUser, SpecialDate
 
 
 class LoginView(View):
@@ -84,6 +84,8 @@ class Main(LoginRequiredMixin, TemplateView):
             'sat_avail': Presence.slots_available(sat),
             'fri_taken': Presence.slots_taken(fri),
             'sat_taken': Presence.slots_taken(sat),
+            'fri_closed': SpecialDate.is_closed(fri),
+            'sat_closed': SpecialDate.is_closed(sat),
             'reg_fri': reg_fri,
             'reg_sat': reg_sat,
             'fri': fri,
