@@ -5,7 +5,8 @@ on:
     # Publish `master` as Docker `latest` image.
     branches:
       - master
-
+  schedule:
+    - cron:  '0 22 1 * *'
 env:
   IMAGE_NAME: aanmelden
 

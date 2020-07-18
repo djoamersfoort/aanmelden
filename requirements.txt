@@ -1,5 +1,5 @@
-django
+django~=3.0
 requests-oauthlib
 requests
 gunicorn
-django-widget-tweaks
+django-widget-tweaks==1.4.8
