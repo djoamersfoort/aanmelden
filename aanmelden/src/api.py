@@ -12,6 +12,7 @@ class FreeDay(View):
             free = Presence.slots_available(Presence.next_saturday())
         return JsonResponse(data={"free": free})
 
+
 class Free(View):
     def get(self, request, *args, **kwargs):
         fri = Presence.slots_available(Presence.next_friday())

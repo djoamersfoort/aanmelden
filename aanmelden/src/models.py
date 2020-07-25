@@ -39,6 +39,8 @@ class Presence(models.Model):
         try:
             special_date = SpecialDate.objects.get(date=on_date)
             slots_available = special_date.free_slots
+            if special_date.closed:
+                slots_available = 0
         except SpecialDate.DoesNotExist:
             pass
 
