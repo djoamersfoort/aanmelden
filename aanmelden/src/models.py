@@ -89,7 +89,7 @@ class SpecialDate(models.Model):
 
 class MacAddress(models.Model):
     class Meta:
-        verbose_name_plural = 'MacAddresses'
+        verbose_name_plural = 'Mac Addresses'
         order_with_respect_to = 'user'
 
     def __str__(self):
