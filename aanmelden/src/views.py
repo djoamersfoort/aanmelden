@@ -156,6 +156,7 @@ class MarkAsSeen(LoginRequiredMixin, View):
         try:
             presence = Presence.objects.get(pk=pk)
             presence.seen = seen == 'true'
+            presence.seen_by = 'manual'
             presence.save()
         except Presence.DoesNotExist:
             # Presence not found, who cares

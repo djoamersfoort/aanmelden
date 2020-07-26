@@ -29,6 +29,7 @@ urlpatterns = [
     path('logoff/', views.LogoffView.as_view(), name='logoff'),
     path('api/v1/free/<str:day>', api.FreeDay.as_view()),
     path('api/v1/free', api.Free.as_view()),
+    path('api/v1/mac_event', api.MacEvent.as_view()),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
-    path('', views.LoginView.as_view(), name='login')
+    path('', views.LoginView.as_view(), name='login'),
 ]
