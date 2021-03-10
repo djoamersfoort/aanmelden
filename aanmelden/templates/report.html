@@ -18,58 +18,40 @@
 </div>
 <div class="container">
     <div class="row">
-        <div class="col-sm">
-            <div class="card border-primary">
-                <div class="card-body">
-                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Vrijdag</h4>
-                    <div class="small">{{ fri }}</div>
-                    <p class="card-text">
-                    {% for member in object_list %}
-                        {% if member.date == fri %}
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
-                          <label class="form-check-label" for="{{ member.id }}">
-                            {{ member.user.first_name }} {{ member.user.last_name }}
-                              {% if member.seen and member.seen_by == 'mac' %}
-                                <i class="fa fa-wifi" aria-hidden="true"></i>
-                              {% endif %}
-                          </label>
-                        </div>
-                        {% endif %}
-                    {% endfor %}
-                    </p>
-                </div>
-                <div class="card-footer p-0">
-                    <a class="btn btn-primary btn-block register" href="{% url 'register-manual' 'fri' %}" role="button"><i class="fas fa-sign-in-alt"></i> Lid Handmatig Aanmelden</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm my-sm-0 my-3">
-            <div class="card border-primary">
-                <div class="card-body">
-                    <h4 class="card-title"><i class="far fa-calendar-alt"></i> Zaterdag</h4>
-                    <div class="small">{{ sat }}</div>
-                    <p class="card-text">
-                    {% for member in object_list %}
-                        {% if member.date == sat %}
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
-                          <label class="form-check-label" for="{{ member.id }}">
-                            {{ member.user.first_name }} {{ member.user.last_name }}
-                              {% if member.seen and member.seen_by == 'mac' %}
-                                <i class="fa fa-wifi" aria-hidden="true"></i>
-                              {% endif %}
-                          </label>
-                        </div>
-                        {% endif %}
-                    {% endfor %}
-                    </p>
-                </div>
-                <div class="card-footer p-0">
-                    <a class="btn btn-primary btn-block register" href="{% url 'register-manual' 'sat' %}" role="button"><i class="fas fa-sign-in-alt"></i> Lid Handmatig Aanmelden</a>
+        {% for slot in slots %}
+
+            {% if not slot.closed %}
+
+            <div class="col-sm">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h4 class="card-title"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
+                        <div class="small">{{ slot.date }}</div>
+                        <p class="card-text">
+                        {% for member in object_list %}
+                            {% if member.date == slot.date and member.pod == slot.pod %}
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
+                              <label class="form-check-label" for="{{ member.id }}">
+                                {{ member.user.first_name }} {{ member.user.last_name }}
+                                  {% if member.seen and member.seen_by == 'mac' %}
+                                    <i class="fa fa-wifi" aria-hidden="true"></i>
+                                  {% endif %}
+                              </label>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        </p>
+                    </div>
+                    <div class="card-footer p-0">
+                        <a class="btn btn-primary btn-block register" href="{% url 'register-manual' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Lid Handmatig Aanmelden</a>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {% endif %}
+        {% endfor %}
+
     </div>
 </div>
 

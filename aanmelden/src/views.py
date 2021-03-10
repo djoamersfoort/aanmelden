@@ -9,7 +9,7 @@ from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Presence, DjoUser, SpecialDate
+from .models import Presence, DjoUser
 
 
 class LoginView(View):
@@ -75,21 +75,9 @@ class Main(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fri = Presence.next_friday()
-        sat = Presence.next_saturday()
-        reg_fri = Presence.objects.filter(user=self.request.user, date=fri).count() > 0
-        reg_sat = Presence.objects.filter(user=self.request.user, date=sat).count() > 0
         context.update({
-            'fri_avail': Presence.slots_available(fri),
-            'sat_avail': Presence.slots_available(sat),
-            'fri_taken': Presence.slots_taken(fri),
-            'sat_taken': Presence.slots_taken(sat),
-            'fri_closed': SpecialDate.is_closed(fri),
-            'sat_closed': SpecialDate.is_closed(sat),
-            'reg_fri': reg_fri,
-            'reg_sat': reg_sat,
-            'fri': fri,
-            'sat': sat
+            'slots': Presence.get_available_slots(self.request.user),
+            'total_slots': settings.SLOTS
         })
         return context
 
@@ -104,10 +92,11 @@ class Register(LoginRequiredMixin, TemplateView):
         else:
             registration_date = Presence.next_saturday()
         presence.date = registration_date
+        presence.pod = self.kwargs.get('pod')
         presence.user = request.user
         try:
             presence.save()
-        except IntegrityError:
+        except IntegrityError as e:
             # Already registered -> ignore
             pass
 
@@ -118,12 +107,13 @@ class DeRegister(LoginRequiredMixin, TemplateView):
     template_name = 'deregistered.html'
 
     def get(self, request, *args, **kwargs):
+        pod = kwargs.get('pod')
         if kwargs.get('day') == 'fri':
             registration_date = Presence.next_friday()
         else:
             registration_date = Presence.next_saturday()
         try:
-            presence = Presence.objects.get(date=registration_date, user=self.request.user)
+            presence = Presence.objects.get(date=registration_date, user=self.request.user, pod=pod)
             if presence:
                 presence.delete()
         except Presence.DoesNotExist:
@@ -138,8 +128,9 @@ class Report(BegeleiderRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context['fri'] = Presence.next_friday()
-        context['sat'] = Presence.next_saturday()
+        context.update({'slots': Presence.get_available_slots(self.request.user)})
+        #context['fri'] = Presence.next_friday()
+        #context['sat'] = Presence.next_saturday()
         return context
 
     def get_queryset(self):
@@ -171,6 +162,7 @@ class RegisterManual(BegeleiderRequiredMixin, CreateView):
     success_url = reverse_lazy('report')
 
     def form_valid(self, form):
+        form.instance.pod = self.kwargs.get('pod')
         if self.kwargs.get('day') == 'fri':
             form.instance.date = Presence.next_friday()
         else:
@@ -180,6 +172,6 @@ class RegisterManual(BegeleiderRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         try:
             return super().post(request, *args, **kwargs)
-        except IntegrityError:
+        except IntegrityError as e:
             # Already registered -> ignore
             return HttpResponseRedirect(reverse('report'))

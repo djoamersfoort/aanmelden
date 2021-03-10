@@ -23,9 +23,52 @@ class Presence(models.Model):
     class Meta:
         unique_together = ('user', 'date')
         indexes = [
+            models.Index(fields=['date', 'pod']),
             models.Index(fields=['date', 'user']),
+            models.Index(fields=['date', 'user', 'pod']),
             models.Index(fields=['date']),
         ]
+
+    @staticmethod
+    def get_available_slots(user=None):
+        friday = Presence.next_friday()
+        saturday = Presence.next_saturday()
+        slots = [
+            {
+                "description": "Vrijdag (19:00 - 22:00)",
+                "pod": "e",
+                "name": 'fri',
+                "date": friday,
+                "closed": SpecialDate.is_closed(friday, 'e'),
+                "available": Presence.slots_available(friday, 'e'),
+                "taken": Presence.slots_taken(friday, 'e'),
+                "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
+                "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
+            },
+            {
+                "description": "Zaterdag (09:30 - 13:00)",
+                "pod": "m",
+                "name": 'sat',
+                "date": saturday,
+                "closed": SpecialDate.is_closed(saturday, 'm'),
+                "available": Presence.slots_available(saturday, 'm'),
+                "taken": Presence.slots_taken(saturday, 'm'),
+                "registered": Presence.objects.filter(user=user, date=saturday, pod='m').count() > 0,
+                "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
+            },
+            {
+                "description": "Zaterdag (13:30 - 17:00)",
+                "pod": "a",
+                "name": 'sat',
+                "date": saturday,
+                "closed": SpecialDate.is_closed(saturday, 'a'),
+                "available": Presence.slots_available(saturday, 'a'),
+                "taken": Presence.slots_taken(saturday, 'a'),
+                "registered": Presence.objects.filter(user=user, date=saturday, pod='a').count() > 0,
+                "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
+            }
+        ]
+        return slots
 
     @staticmethod
     def next_friday():
@@ -38,32 +81,44 @@ class Presence(models.Model):
         return today + datetime.timedelta((5 - today.weekday()) % 7)
 
     @staticmethod
-    def slots_available(on_date):
-        slots_available = settings.SLOTS
+    def slots_available(on_date, pod=None):
         try:
-            special_date = SpecialDate.objects.get(date=on_date)
+            special_date = SpecialDate.objects.get(date=on_date, pod=pod)
+        except SpecialDate.DoesNotExist:
+            try:
+                special_date = SpecialDate.objects.get(date=on_date, pod=None)
+            except SpecialDate.DoesNotExist:
+                special_date = None
+
+        slots_available = settings.SLOTS
+        if special_date:
             slots_available = special_date.free_slots
             if special_date.closed:
                 slots_available = 0
-        except SpecialDate.DoesNotExist:
-            pass
 
-        return slots_available - Presence.slots_taken(on_date)
+        return slots_available - Presence.slots_taken(on_date, pod)
 
     @staticmethod
-    def slots_taken(on_date):
-        return Presence.objects.filter(date=on_date).count()
+    def slots_taken(on_date, pod=None):
+        return Presence.objects.filter(date=on_date, pod=pod).count()
 
     def __str__(self):
-        return f"{self.date}: {self.user}"
+        return f"{self.date}/{self.pod}: {self.user}"
 
     SEEN_BY_CHOICES = (
         ('mac', 'Mac Adres'),
         ('manual', 'Handmatig Aangemeld')
     )
 
+    POD_CHOICES = (
+        ('m', 'Ochtend'),
+        ('a', 'Middag'),
+        ('e', 'Avond'),
+    )
+
     user = models.ForeignKey(DjoUser, models.CASCADE)
     date = models.DateField()
+    pod = models.CharField(choices=POD_CHOICES, max_length=1, null=True)
     seen = models.BooleanField(default=False)
     seen_by = models.CharField(max_length=6, choices=SEEN_BY_CHOICES, default='manual', null=False)
 
@@ -71,20 +126,27 @@ class Presence(models.Model):
 class SpecialDate(models.Model):
     date = models.DateField()
     free_slots = models.IntegerField()
+    pod = models.CharField(choices=Presence.POD_CHOICES, max_length=1, null=True, blank=True)
     closed = models.BooleanField()
 
     @staticmethod
-    def is_closed(on_date):
+    def is_closed(on_date, pod=None):
         try:
-            special_date = SpecialDate.objects.get(date=on_date)
-            closed = special_date.closed
+            special_date = SpecialDate.objects.get(date=on_date, pod=pod)
         except SpecialDate.DoesNotExist:
-            closed = False
+            try:
+                special_date = SpecialDate.objects.get(date=on_date, pod=None)
+            except SpecialDate.DoesNotExist:
+                special_date = None
+
+        closed = False
+        if special_date:
+            closed = special_date.closed
 
         return closed
 
     def __str__(self):
-        return f"{self.date}, Slots: {self.free_slots}, Closed: {self.closed}"
+        return f"{self.date}, Pod: {self.pod}, Slots: {self.free_slots}, Closed: {self.closed}"
 
 
 class MacAddress(models.Model):

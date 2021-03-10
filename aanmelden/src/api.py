@@ -10,16 +10,18 @@ class FreeDay(View):
     def get(self, request, *args, **kwargs):
         day = self.kwargs.get('day')
         if day == 'fri':
-            free = Presence.slots_available(Presence.next_friday())
+            free = Presence.slots_available(Presence.next_friday(), pod='e')
         else:
-            free = Presence.slots_available(Presence.next_saturday())
+            free = Presence.slots_available(Presence.next_saturday(), pod='m') + Presence.slots_available(
+                Presence.next_saturday(), pod='a')
         return JsonResponse(data={"free": free})
 
 
 class Free(View):
     def get(self, request, *args, **kwargs):
-        fri = Presence.slots_available(Presence.next_friday())
-        sat = Presence.slots_available(Presence.next_saturday())
+        fri = Presence.slots_available(Presence.next_friday(), pod='e')
+        sat = Presence.slots_available(Presence.next_saturday(), pod='m') + Presence.slots_available(
+            Presence.next_saturday(), pod='a')
         return JsonResponse({
             "friday": fri,
             "saturday": sat
