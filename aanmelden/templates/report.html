@@ -26,9 +26,9 @@
             <div class="col-sm">
                 <div class="card border-primary">
                     <div class="card-body">
-                        <h4 class="card-title"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
-                        <div class="small">{{ slot.date }}</div>
-                        <div>
+                        <h4 class="card-title text-center"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
+                        <div class="small text-center">{{ slot.date }}</div>
+                        <div class="text-center">
                             <p>Slots beschikbaar:
                                 {% if slot.available == 0 %}
                                 <span class="badge badge-warning">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
