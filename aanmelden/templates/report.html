@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load mathfilters %}
 {% load static %}
 
 {% block extra_head_content %}
@@ -25,8 +26,19 @@
             <div class="col-sm">
                 <div class="card border-primary">
                     <div class="card-body">
-                        <h4 class="card-title"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
-                        <div class="small">{{ slot.date }}</div>
+                        <h4 class="card-title text-center"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
+                        <div class="small text-center">{{ slot.date }}</div>
+                        <div class="text-center">
+                            <p>Slots beschikbaar:
+                                {% if slot.available == 0 %}
+                                <span class="badge badge-warning">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
+                                {% elif slot.available < 0 %}
+                                <span class="badge badge-danger">0 / {{ slot.available|add:slot.taken }}, {{ slot.available|abs }} over</span>
+                                {% else %}
+                                <span class="badge badge-primary">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
                         <p class="card-text">
                         {% for member in object_list %}
                             {% if member.date == slot.date and member.pod == slot.pod %}

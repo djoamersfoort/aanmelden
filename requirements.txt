@@ -3,3 +3,4 @@ requests-oauthlib
 requests
 gunicorn
 django-widget-tweaks==1.4.8
+django-mathfilters
