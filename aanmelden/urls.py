@@ -28,6 +28,7 @@ urlpatterns = [
     path('report/', views.Report.as_view(), name='report'),
     path('logoff/', views.LogoffView.as_view(), name='logoff'),
     path('api/v1/free/<str:day>', api.FreeDay.as_view()),
+    path('api/v2/free', api.FreeV2.as_view()),
     path('api/v1/free', api.Free.as_view()),
     path('api/v1/mac_event', api.MacEvent.as_view()),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),

@@ -122,7 +122,7 @@ class DeRegister(LoginRequiredMixin, TemplateView):
         return super().get(request, args, kwargs)
 
 
-class Report(BegeleiderRequiredMixin, ListView):
+class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
     template_name = 'report.html'
     model = Presence
 
