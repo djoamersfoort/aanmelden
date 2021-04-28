@@ -137,8 +137,6 @@ class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
         context.update({'slots': Presence.get_available_slots(self.request.user)})
-        #context['fri'] = Presence.next_friday()
-        #context['sat'] = Presence.next_saturday()
         return context
 
     def get_queryset(self):
