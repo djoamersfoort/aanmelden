@@ -94,6 +94,10 @@ class Register(LoginRequiredMixin, TemplateView):
         presence.date = registration_date
         presence.pod = self.kwargs.get('pod')
         presence.user = request.user
+
+        if Presence.slots_available(registration_date, presence.pod) <= 0:
+            return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+
         try:
             presence.save()
         except IntegrityError as e:
@@ -120,6 +124,10 @@ class DeRegister(LoginRequiredMixin, TemplateView):
             pass
 
         return super().get(request, args, kwargs)
+
+
+class Full(LoginRequiredMixin, TemplateView):
+    template_name = 'full.html'
 
 
 class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
