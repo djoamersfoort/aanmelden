@@ -40,6 +40,11 @@
                     <a class="nav-link" href="{% url 'report' %}"><i class="fas fa-pencil-alt"></i> Report</a>
                 </li>
                 {% endif %}
+                {% if user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/"><i class="fas fa-cogs"></i> Admin</a>
+                </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link text-secondary" href="{% url 'logoff' %}"><i class="fas fa-sign-out-alt"></i> Uitloggen</a>
                 </li>
