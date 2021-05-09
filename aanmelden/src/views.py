@@ -1,5 +1,7 @@
 from django.views.generic import View, ListView, TemplateView
 from django.views.generic.edit import CreateView
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.db import IntegrityError
@@ -12,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Presence, DjoUser
 
 
+@method_decorator(never_cache, name='dispatch')
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         oauth = OAuth2Session(client_id=settings.IDP_CLIENT_ID,
@@ -70,6 +73,7 @@ class LogoffView(LoginRequiredMixin, View):
         return HttpResponse("Je bent succesvol uitgelogd.")
 
 
+@method_decorator(never_cache, name='dispatch')
 class Main(LoginRequiredMixin, TemplateView):
     template_name = 'main.html'
 
@@ -82,6 +86,7 @@ class Main(LoginRequiredMixin, TemplateView):
         return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class Register(LoginRequiredMixin, TemplateView):
     template_name = 'registered.html'
 
@@ -107,6 +112,7 @@ class Register(LoginRequiredMixin, TemplateView):
         return super().get(request, args, kwargs)
 
 
+@method_decorator(never_cache, name='dispatch')
 class DeRegister(LoginRequiredMixin, TemplateView):
     template_name = 'deregistered.html'
 
@@ -130,6 +136,7 @@ class Full(LoginRequiredMixin, TemplateView):
     template_name = 'full.html'
 
 
+@method_decorator(never_cache, name='dispatch')
 class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
     template_name = 'report.html'
     model = Presence
@@ -161,6 +168,7 @@ class MarkAsSeen(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse('report'))
 
 
+@method_decorator(never_cache, name='dispatch')
 class RegisterManual(BegeleiderRequiredMixin, CreateView):
     template_name = 'register_manual.html'
     model = Presence

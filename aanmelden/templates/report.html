@@ -33,7 +33,7 @@
                                 {% if slot.available == 0 %}
                                 <span class="badge badge-warning">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
                                 {% elif slot.available < 0 %}
-                                <span class="badge badge-danger">0 / {{ slot.available|add:slot.taken }}, {{ slot.available|abs }} over</span>
+                                <span class="badge badge-danger">0 / {{ slot.available|add:slot.taken }}, {{ slot.available|abs }} te veel</span>
                                 {% else %}
                                 <span class="badge badge-primary">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
                                 {% endif %}
