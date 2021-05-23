@@ -30,7 +30,7 @@
                         <div class="small">{% if slot.registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>
                         <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} nog <span class="badge badge-primary">{{ slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
                     </div>
-                    {% if not user.is_superuserss %}
+                    {% if not user.is_superuser %}
                     <div class="card-footer p-0">
                         {% if slot.available != 0 and not slot.day_registered %}
                           <a class="btn btn-primary btn-block register" href="{% url 'register' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
