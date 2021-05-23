@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from dateutil.relativedelta import relativedelta, FR, SA
 import datetime
 
 
@@ -71,14 +72,20 @@ class Presence(models.Model):
         return slots
 
     @staticmethod
+    def last_friday():
+        return datetime.date.today() + relativedelta(weekday=FR(-1))
+
+    @staticmethod
+    def last_saturday():
+        return datetime.date.today() + relativedelta(weekday=SA(-1))
+
+    @staticmethod
     def next_friday():
-        today = datetime.date.today()
-        return today + datetime.timedelta((4 - today.weekday()) % 7)
+        return datetime.date.today() + relativedelta(weekday=FR)
 
     @staticmethod
     def next_saturday():
-        today = datetime.date.today()
-        return today + datetime.timedelta((5 - today.weekday()) % 7)
+        return datetime.date.today() + relativedelta(weekday=SA)
 
     @staticmethod
     def slots_available(on_date, pod=None):

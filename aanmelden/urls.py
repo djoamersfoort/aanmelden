@@ -26,6 +26,7 @@ urlpatterns = [
     path('register/manual/<str:day>/<str:pod>', views.RegisterManual.as_view(), name='register-manual'),
     path('deregister/day/<str:day>/<str:pod>', views.DeRegister.as_view(), name='deregister'),
     path('full/day/<str:day>/<str:pod>', views.Full.as_view(), name='full'),
+    path('try_again_later/day/<str:day>/<str:pod>', views.TryAgainLater.as_view(), name='try_again_later'),
     path('report/', views.Report.as_view(), name='report'),
     path('logoff/', views.LogoffView.as_view(), name='logoff'),
     path('api/v1/free/<str:day>', api.FreeDay.as_view()),

@@ -12,6 +12,7 @@ from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Presence, DjoUser
+from django.utils import timezone
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -94,14 +95,21 @@ class Register(LoginRequiredMixin, TemplateView):
         presence = Presence()
         if kwargs.get('day') == 'fri':
             registration_date = Presence.next_friday()
+            last_week_date = Presence.last_friday()
         else:
             registration_date = Presence.next_saturday()
+            last_week_date = Presence.last_saturday()
         presence.date = registration_date
         presence.pod = self.kwargs.get('pod')
         presence.user = request.user
 
         if Presence.slots_available(registration_date, presence.pod) <= 0:
             return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+
+        if Presence.objects.filter(user=request.user, date=last_week_date).count() > 0:
+            # User was registered last week on the same day -> delay next if weekday < wednesday (2)
+            if (registration_date - timezone.datetime.today().date()).days >= 3:
+                return HttpResponseRedirect(reverse('try_again_later', kwargs=kwargs))
 
         try:
             presence.save()
@@ -134,6 +142,10 @@ class DeRegister(LoginRequiredMixin, TemplateView):
 
 class Full(LoginRequiredMixin, TemplateView):
     template_name = 'full.html'
+
+
+class TryAgainLater(LoginRequiredMixin, TemplateView):
+    template_name = 'try_again_later.html'
 
 
 @method_decorator(never_cache, name='dispatch')

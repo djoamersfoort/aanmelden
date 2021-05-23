@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container text-center">
+    <div class="jumbotron mt-md-5 mt-3">
+        <i class="fas fa-calendar-times fa-5x mt-3 text-primary"></i>
+        <div class="mt-2 h-title">Helaas, je kunt je op dit moment nog niet aanmelden voor komende {% if view.kwargs.day == 'fri' %}vrijdag{% else %}zaterdag{% endif %}.</div>
+        <p>Je was afgelopen {% if view.kwargs.day == 'fri' %}vrijdag{% else %}zaterdag{% endif %}
+            aanwezig, waardoor je je deze keer pas vanaf aankomende woensdag kunt aanmelden. Vervelend, maar zo geven we alle DJO-ers een kans om aanwezig te zijn.</p>
+        <div class="lead">Terug naar de <a href="{% url 'main' %}">homepage</a>.</div>
+    </div>
+</div>
+
+{% endblock %}
