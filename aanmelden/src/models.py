@@ -47,7 +47,7 @@ class Presence(models.Model):
                 "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
             },
             {
-                "description": "Zaterdag (09:30 - 13:00)",
+                "description": "Zaterdag (09:30 - 13:30)",
                 "pod": "m",
                 "name": 'sat',
                 "date": saturday,
@@ -57,17 +57,17 @@ class Presence(models.Model):
                 "registered": Presence.objects.filter(user=user, date=saturday, pod='m').count() > 0,
                 "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
             },
-            {
-                "description": "Zaterdag (13:30 - 17:00)",
-                "pod": "a",
-                "name": 'sat',
-                "date": saturday,
-                "closed": SpecialDate.is_closed(saturday, 'a'),
-                "available": Presence.slots_available(saturday, 'a'),
-                "taken": Presence.slots_taken(saturday, 'a'),
-                "registered": Presence.objects.filter(user=user, date=saturday, pod='a').count() > 0,
-                "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
-            }
+            # {
+            #     "description": "Zaterdag (13:30 - 17:00)",
+            #     "pod": "a",
+            #     "name": 'sat',
+            #     "date": saturday,
+            #     "closed": SpecialDate.is_closed(saturday, 'a'),
+            #     "available": Presence.slots_available(saturday, 'a'),
+            #     "taken": Presence.slots_taken(saturday, 'a'),
+            #     "registered": Presence.objects.filter(user=user, date=saturday, pod='a').count() > 0,
+            #     "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
+            # }
         ]
         return slots
 
