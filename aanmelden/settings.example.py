@@ -121,5 +121,6 @@ IDP_REDIRECT_URL = 'http://localhost:8000/oauth/'
 IDP_AUTHORIZE_URL = 'https://idp.djoamersfoort.nl/oauth/authorize'
 IDP_TOKEN_URL = 'https://idp.djoamersfoort.nl/oauth/token'
 IDP_API_URL = 'https://idp.djoamersfoort.nl/api/primus/user/all'
+IDP_API_SCOPES = ['user/basic', 'user/names', 'user/email']
 
 SLOTS = 16

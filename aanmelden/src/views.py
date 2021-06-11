@@ -19,7 +19,7 @@ class LoginView(View):
     def get(self, request, *args, **kwargs):
         oauth = OAuth2Session(client_id=settings.IDP_CLIENT_ID,
                               redirect_uri=settings.IDP_REDIRECT_URL,
-                              scope=['user/basic', 'user/account-type', 'user/names', 'user/email'])
+                              scope=settings.IDP_API_SCOPES)
         auth_url, state = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
         return HttpResponseRedirect(auth_url)
 
@@ -40,7 +40,7 @@ class LoginResponseView(View):
 
         if 'access_token' in access_token and access_token['access_token'] != '':
             user_profile = oauth.get(settings.IDP_API_URL).json()
-            username = "idp-{0}".format(user_profile['result']['id'])
+            username = "idp-{0}".format(user_profile['id'])
 
             try:
                 found_user = DjoUser.objects.get(username=username)
@@ -49,10 +49,10 @@ class LoginResponseView(View):
                 found_user.username = username
                 found_user.set_unusable_password()
 
-            found_user.email = user_profile['result']['email']
-            found_user.first_name = user_profile['result']['firstName']
-            found_user.last_name = user_profile['result']['lastName']
-            account_type = user_profile['result']['accountType']
+            found_user.email = user_profile['email']
+            found_user.first_name = user_profile['firstName']
+            found_user.last_name = user_profile['lastName']
+            account_type = user_profile['accountType']
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
             found_user.save()
 
