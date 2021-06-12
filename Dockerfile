@@ -23,4 +23,5 @@ COPY manage.py  /srv
 
 WORKDIR /srv
 COPY start.sh /
+COPY ./jobs.sh /
 ENTRYPOINT ["/start.sh"]

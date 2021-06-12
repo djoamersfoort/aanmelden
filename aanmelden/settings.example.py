@@ -122,5 +122,7 @@ IDP_AUTHORIZE_URL = 'https://idp.djoamersfoort.nl/oauth/authorize'
 IDP_TOKEN_URL = 'https://idp.djoamersfoort.nl/oauth/token'
 IDP_API_URL = 'https://idp.djoamersfoort.nl/api/primus/user/all'
 IDP_API_SCOPES = ['user/basic', 'user/names', 'user/email']
+SESSION_COOKIE_SECURE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SLOTS = 16
