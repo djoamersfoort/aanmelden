@@ -70,7 +70,7 @@ class LogoffView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         logout(request)
 
-        return HttpResponse("Je bent succesvol uitgelogd.")
+        return HttpResponseRedirect(settings.IDP_LOGOUT_URL)
 
 
 @method_decorator(never_cache, name='dispatch')
