@@ -11,7 +11,13 @@
           {% if view.kwargs.pod == 'a' %} middag (13:30 - 17:00)! {% endif %}
           {% if view.kwargs.pod == 'e' %} avond (19:00 - 22:00)!{% endif %}
         </div>
-        <div class="lead">Je kan je altijd weer aanmelden op de <a href="{% url 'main' %}">homepage</a>.</div>
+        <div class="lead">Je kan je altijd weer aanmelden op de
+            {% if user.is_superuser %}
+              <a href="{% url 'report' %}">homepage</a>.
+            {% else %}
+              <a href="{% url 'main' %}">homepage</a>.
+            {% endif %}
+        </div>
     </div>
 </div>
 

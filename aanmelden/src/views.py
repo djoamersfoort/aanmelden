@@ -91,17 +91,22 @@ class Register(LoginRequiredMixin, TemplateView):
     template_name = 'registered.html'
 
     def get(self, request, *args, **kwargs):
-        presence = Presence()
         if kwargs.get('day') == 'fri':
             registration_date = Presence.next_friday()
         else:
             registration_date = Presence.next_saturday()
-        presence.date = registration_date
-        presence.pod = self.kwargs.get('pod')
-        presence.user = request.user
+        pod = self.kwargs.get('pod')
 
-        if Presence.slots_available(registration_date, presence.pod) <= 0:
-            return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+        if not request.user.is_superuser:
+            # Check if any slots are available server side
+            if Presence.slots_available(registration_date, pod) <= 0:
+                return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+            # TODO: Check if user has already registered this weekend (needs 'days' property)
+
+        presence = Presence()
+        presence.date = registration_date
+        presence.pod = pod
+        presence.user = request.user
 
         try:
             presence.save()
@@ -149,7 +154,7 @@ class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
     def get_queryset(self):
         fri = Presence.next_friday()
         sat = Presence.next_saturday()
-        return Presence.objects.filter(Q(date=fri) | Q(date=sat))
+        return Presence.objects.filter(Q(date=fri) | Q(date=sat)).order_by('-user__is_superuser')
 
 
 class MarkAsSeen(LoginRequiredMixin, View):

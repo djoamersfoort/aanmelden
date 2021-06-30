@@ -42,6 +42,7 @@ class Presence(models.Model):
                 "closed": SpecialDate.is_closed(friday, 'e'),
                 "available": Presence.slots_available(friday, 'e'),
                 "taken": Presence.slots_taken(friday, 'e'),
+                "tutors": Presence.objects.filter(date=friday, pod='e', user__is_superuser=True).count(),
                 "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
                 "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
             },
@@ -53,6 +54,7 @@ class Presence(models.Model):
                 "closed": SpecialDate.is_closed(saturday, 'm'),
                 "available": Presence.slots_available(saturday, 'm'),
                 "taken": Presence.slots_taken(saturday, 'm'),
+                "tutors": Presence.objects.filter(date=saturday, pod='m', user__is_superuser=True).count(),
                 "registered": Presence.objects.filter(user=user, date=saturday, pod='m').count() > 0,
                 "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
             },
