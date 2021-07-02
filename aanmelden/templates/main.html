@@ -31,7 +31,7 @@
                         <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} nog <span class="badge badge-primary">{{ slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
                     </div>
                     <div class="card-text">
-                        <p><i class="fas fa-user-tie"></i>  Aanwezige begeleiders: {{ slot.tutors|join:", "|default:"-" }}</p>
+                        <p><i class="fas fa-user-tie"></i>Aanwezige begeleiders: <br> {{ slot.tutors|join:", "|default:"-" }}</p>
                     </div>
                     {% if not user.is_superuser %}
                     <div class="card-footer p-0">
