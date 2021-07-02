@@ -58,6 +58,9 @@ class LoginResponseView(View):
 
             auth_login(request, found_user)
 
+            # Store user presence days in the current session to validate registrations
+            request.session['days'] = user_profile['days']
+
             if found_user.is_superuser:
                 return HttpResponseRedirect(reverse('report'))
             else:
@@ -101,7 +104,12 @@ class Register(LoginRequiredMixin, TemplateView):
             # Check if any slots are available server side
             if Presence.slots_available(registration_date, pod) <= 0:
                 return HttpResponseRedirect(reverse('full', kwargs=kwargs))
-            # TODO: Check if user has already registered this weekend (needs 'days' property)
+            # Check if allowed to register for the number of days
+            reg_count = Presence.objects.filter(Q(date=Presence.next_friday()) | Q(date=Presence.next_saturday())) \
+                .filter(user=request.user).count()
+            allowed_count = len(request.session['days'].split(','))
+            if reg_count >= allowed_count:
+                return HttpResponseRedirect(reverse('full', kwargs=kwargs))
 
         presence = Presence()
         presence.date = registration_date

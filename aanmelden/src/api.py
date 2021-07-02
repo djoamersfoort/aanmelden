@@ -32,6 +32,7 @@ class FreeV2(View):
     def get(self, request, *args, **kwargs):
         slots = Presence.get_available_slots()
         for slot in slots:
+            slot.pop('tutors', None)
             slot.pop('registered', None)
             slot.pop('day_registered', None)
 
