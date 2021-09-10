@@ -20,7 +20,7 @@ class LoginView(View):
     def get(self, request, *args, **kwargs):
         oauth = OAuth2Session(client_id=settings.IDP_CLIENT_ID,
                               redirect_uri=settings.IDP_REDIRECT_URL,
-                              scope=['user/basic', 'user/account-type', 'user/names', 'user/email'])
+                              scope=settings.IDP_API_SCOPES)
         auth_url, state = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
         return HttpResponseRedirect(auth_url)
 
@@ -41,7 +41,7 @@ class LoginResponseView(View):
 
         if 'access_token' in access_token and access_token['access_token'] != '':
             user_profile = oauth.get(settings.IDP_API_URL).json()
-            username = "idp-{0}".format(user_profile['result']['id'])
+            username = "idp-{0}".format(user_profile['id'])
 
             try:
                 found_user = DjoUser.objects.get(username=username)
@@ -50,14 +50,17 @@ class LoginResponseView(View):
                 found_user.username = username
                 found_user.set_unusable_password()
 
-            found_user.email = user_profile['result']['email']
-            found_user.first_name = user_profile['result']['firstName']
-            found_user.last_name = user_profile['result']['lastName']
-            account_type = user_profile['result']['accountType']
+            found_user.email = user_profile['email']
+            found_user.first_name = user_profile['firstName']
+            found_user.last_name = user_profile['lastName']
+            account_type = user_profile['accountType']
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
             found_user.save()
 
             auth_login(request, found_user)
+
+            # Store user presence days in the current session to validate registrations
+            request.session['days'] = user_profile['days']
 
             if found_user.is_superuser:
                 return HttpResponseRedirect(reverse('report'))
@@ -70,8 +73,7 @@ class LoginResponseView(View):
 class LogoffView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         logout(request)
-
-        return HttpResponse("Je bent succesvol uitgelogd.")
+        return HttpResponseRedirect(settings.IDP_LOGOUT_URL)
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -92,15 +94,29 @@ class Register(LoginRequiredMixin, TemplateView):
     template_name = 'registered.html'
 
     def get(self, request, *args, **kwargs):
-        presence = Presence()
         if kwargs.get('day') == 'fri':
             registration_date = Presence.next_friday()
             last_week_date = Presence.last_friday()
         else:
             registration_date = Presence.next_saturday()
             last_week_date = Presence.last_saturday()
+
+        pod = self.kwargs.get('pod')
+
+        if not request.user.is_superuser:
+            # Check if any slots are available server side
+            if Presence.slots_available(registration_date, pod) <= 0:
+                return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+            # Check if allowed to register for the number of days
+            reg_count = Presence.objects.filter(Q(date=Presence.next_friday()) | Q(date=Presence.next_saturday())) \
+                .filter(user=request.user).count()
+            allowed_count = len(request.session['days'].split(','))
+            if reg_count >= allowed_count:
+                return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+
+        presence = Presence()
         presence.date = registration_date
-        presence.pod = self.kwargs.get('pod')
+        presence.pod = pod
         presence.user = request.user
 
         if Presence.slots_available(registration_date, presence.pod) <= 0:
@@ -161,7 +177,7 @@ class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
     def get_queryset(self):
         fri = Presence.next_friday()
         sat = Presence.next_saturday()
-        return Presence.objects.filter(Q(date=fri) | Q(date=sat))
+        return Presence.objects.filter(Q(date=fri) | Q(date=sat)).order_by('-user__is_superuser')
 
 
 class MarkAsSeen(LoginRequiredMixin, View):

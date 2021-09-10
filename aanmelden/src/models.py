@@ -13,7 +13,7 @@ class DjoUser(User):
     @staticmethod
     def is_begeleider(account_type):
         types = account_type.split(',')
-        return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
+        return 'begeleider' in types or 'aspirant_begeleider' in types
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
@@ -43,6 +43,9 @@ class Presence(models.Model):
                 "closed": SpecialDate.is_closed(friday, 'e'),
                 "available": Presence.slots_available(friday, 'e'),
                 "taken": Presence.slots_taken(friday, 'e'),
+                "tutor_count": Presence.objects.filter(date=friday, pod='e', user__is_superuser=True).count(),
+                "tutors": list(Presence.objects.filter(date=friday, pod='e', user__is_superuser=True)
+                               .values_list('user__first_name', flat=True)),
                 "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
                 "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
             },
@@ -54,6 +57,9 @@ class Presence(models.Model):
                 "closed": SpecialDate.is_closed(saturday, 'm'),
                 "available": Presence.slots_available(saturday, 'm'),
                 "taken": Presence.slots_taken(saturday, 'm'),
+                "tutor_count": Presence.objects.filter(date=saturday, pod='m', user__is_superuser=True).count(),
+                "tutors": list(Presence.objects.filter(date=saturday, pod='m', user__is_superuser=True)
+                               .values_list('user__first_name', flat=True)),
                 "registered": Presence.objects.filter(user=user, date=saturday, pod='m').count() > 0,
                 "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
             },
@@ -107,7 +113,7 @@ class Presence(models.Model):
 
     @staticmethod
     def slots_taken(on_date, pod=None):
-        return Presence.objects.filter(date=on_date, pod=pod).count()
+        return Presence.objects.filter(date=on_date, pod=pod, user__is_superuser=False).count()
 
     def __str__(self):
         return f"{self.date}/{self.pod}: {self.user}"

@@ -37,26 +37,41 @@
                                 {% else %}
                                 <span class="badge badge-primary">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
                                 {% endif %}
+                                <br>Begeleiders: <span class="badge badge-primary">{{ slot.tutor_count }}</span>
                             </p>
                         </div>
                         <p class="card-text">
                         {% for member in object_list %}
                             {% if member.date == slot.date and member.pod == slot.pod %}
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
-                              <label class="form-check-label" for="{{ member.id }}">
-                                {{ member.user.first_name }} {{ member.user.last_name }}
-                                  {% if member.seen and member.seen_by == 'mac' %}
-                                    <i class="fa fa-wifi" aria-hidden="true"></i>
-                                  {% endif %}
-                              </label>
-                            </div>
+
+                                {% if member.user.is_superuser %}
+                                <div class="form-check">
+                                    <i class="fas fa-user-tie form-check-input"></i> {{ member.user.first_name }} {{ member.user.last_name }}
+                                </div>
+                                {% else %}
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
+                                  <label class="form-check-label" for="{{ member.id }}">
+                                    {{ member.user.first_name }} {{ member.user.last_name }}
+                                      {% if member.seen and member.seen_by == 'mac' %}
+                                        <i class="fa fa-wifi" aria-hidden="true"></i>
+                                      {% endif %}
+                                  </label>
+                                </div>
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
                         </p>
                     </div>
                     <div class="card-footer p-0">
                         <a class="btn btn-primary btn-block register" href="{% url 'register-manual' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Lid Handmatig Aanmelden</a>
+                    </div>
+                    <div class="card-footer p-0 mt-2">
+                        {% if not slot.day_registered %}
+                          <a class="btn btn-primary btn-block register" href="{% url 'register' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden als begeleider</a>
+                        {% else %}
+                          <a class="btn btn-link btn-block register" href="{% url 'deregister' slot.name slot.pod %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden als begeleider</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -11,7 +11,7 @@ RUN apk update && \
     apk del gcc musl-dev
 
 WORKDIR /srv
-RUN mkdir static logs /run/nginx
+RUN mkdir static logs
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
@@ -23,4 +23,5 @@ COPY manage.py  /srv
 
 WORKDIR /srv
 COPY start.sh /
+COPY ./jobs.sh /
 ENTRYPOINT ["/start.sh"]
