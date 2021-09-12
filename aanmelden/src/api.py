@@ -1,8 +1,10 @@
 from django.views.generic import View
 from .models import Presence, MacAddress
+from .mixins import ClientCredentialsRequiredMixin
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.conf import settings
 from datetime import date
 
 
@@ -12,16 +14,14 @@ class FreeDay(View):
         if day == 'fri':
             free = Presence.slots_available(Presence.next_friday(), pod='e')
         else:
-            free = Presence.slots_available(Presence.next_saturday(), pod='m') + Presence.slots_available(
-                Presence.next_saturday(), pod='a')
+            free = Presence.slots_available(Presence.next_saturday(), pod='m')
         return JsonResponse(data={"free": free})
 
 
 class Free(View):
     def get(self, request, *args, **kwargs):
         fri = Presence.slots_available(Presence.next_friday(), pod='e')
-        sat = Presence.slots_available(Presence.next_saturday(), pod='m') + Presence.slots_available(
-            Presence.next_saturday(), pod='a')
+        sat = Presence.slots_available(Presence.next_saturday(), pod='m')
         return JsonResponse({
             "friday": fri,
             "saturday": sat
@@ -70,3 +70,23 @@ class MacEvent(View):
             pass
 
         return HttpResponse('OK')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class IsPresentV1(ClientCredentialsRequiredMixin, View):
+    whitelisted_client_ids = settings.API_CLIENT_WHITELIST
+
+    def post(self, request, *args, **kwargs):
+        # Check if a user is present on a certain dow (auth required)
+        day = self.kwargs.get('day')
+        userid = self.kwargs.get('userid').strip()
+        if day == 'fri':
+            date = Presence.next_friday()
+        else:
+            date = Presence.next_saturday()
+
+        try:
+            Presence.objects.get(date=date, user__username=userid)
+        except Presence.DoesNotExist:
+            return JsonResponse({'present': False})
+        return JsonResponse({'present': True})

@@ -123,6 +123,9 @@ IDP_TOKEN_URL = 'https://leden.djoamersfoort.nl/o/token/'
 IDP_API_URL = 'https://leden.djoamersfoort.nl/api/v1/member/details'
 IDP_LOGOUT_URL = 'https://leden.djoamersfoort.nl/accounts/logout/'
 IDP_API_SCOPES = ['user/basic', 'user/names', 'user/email']
+INTROSPECTION_CLIENT_ID = '<client id>'
+INTROSPECTION_CLIENT_SECRET = '<client secret>'
+IDP_INTROSPECTION_URL = 'https://leden.djoamersfoort.nl/o/introspect/'
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
