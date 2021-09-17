@@ -2,7 +2,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.response import HttpResponseForbidden
 from django.conf import settings
 from django.core.cache import cache
-import requests
+from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2 import BackendApplicationClient
 
 
 class BegeleiderRequiredMixin(UserPassesTestMixin):
@@ -27,29 +28,26 @@ class ClientCredentialsRequiredMixin:
 
     def validate_client_token(self, client_token) -> bool:
         # Get a token with introspection scope
+        client = BackendApplicationClient(client_id=settings.INTROSPECTION_CLIENT_ID, scope=["introspection"])
+        oauth = OAuth2Session(client=client)
         introspection_token = cache.get('introspection_token')
         if not introspection_token:
             # No cached token found -> get a new one
-            response = requests.post(settings.IDP_TOKEN_URL,
-                                     headers={'Content-Type': 'application/x-www-form-urlencoded'},
-                                     data=f'grant_type=client_credentials'
-                                          f'&client_id={settings.INTROSPECTION_CLIENT_ID}'
-                                          f'&client_secret={settings.INTROSPECTION_CLIENT_SECRET}'
-                                          f'&scope=introspection')
-            if not response.ok:
+            try:
+                introspection_token = oauth.fetch_token(token_url=settings.IDP_TOKEN_URL,
+                                                        client_secret=settings.INTROSPECTION_CLIENT_SECRET)
+            except Exception as e:
                 # Failed to get an introspection token -> bail
+                print(e)
                 return False
 
-            result = response.json()
-            introspection_token = result["access_token"]
-            cache.set('introspection_token', introspection_token, timeout=result['expires_in'])
+            cache.set('introspection_token', introspection_token, timeout=introspection_token['expires_in'])
+        else:
+            oauth.token = introspection_token
 
         # We now have a token that allows us to call the introspection endpoint
         # Call it to verify the client_token we received
-        response = requests.post(settings.IDP_INTROSPECTION_URL,
-                                 headers={'Content-Type': 'application/x-www-form-urlencoded',
-                                          'Authorization': f'Bearer {introspection_token}'},
-                                 data={'token': client_token})
+        response = oauth.post(settings.IDP_INTROSPECTION_URL, data={'token': client_token})
         if not response.ok:
             # The token we verified was not valid
             return False
