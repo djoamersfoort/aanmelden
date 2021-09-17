@@ -58,4 +58,4 @@ verwacht met grant_type 'client_credentials', waarvan het bijbehorende client_id
 voor deze API. Bedoeld voor de Corveeapplicatie.
 
 `dag` kan 'fri' of 'sat' zijn.
-`user_id` is het IDP userid (idp-<nummer>) van het op te vragen DJO lid.
+`user_id` is het IDP userid (idp-\<nummer\>) van het op te vragen DJO lid.

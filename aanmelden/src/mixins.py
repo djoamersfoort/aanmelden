@@ -44,7 +44,6 @@ class ClientCredentialsRequiredMixin:
             introspection_token = result["access_token"]
             cache.set('introspection_token', introspection_token, timeout=result['expires_in'])
 
-        print(introspection_token)
         # We now have a token that allows us to call the introspection endpoint
         # Call it to verify the client_token we received
         response = requests.post(settings.IDP_INTROSPECTION_URL,
