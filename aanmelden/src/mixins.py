@@ -63,7 +63,13 @@ class ClientCredentialsRequiredMixin:
         if not client_access_token:
             return HttpResponseForbidden()
 
-        if not self.validate_client_token(client_access_token):
+        token_valid = cache.get(client_access_token)
+        if token_valid is None:
+            # No cached result found for this token, query IDP
+            token_valid = self.validate_client_token(client_access_token)
+            cache.set(client_access_token, token_valid, timeout=1800)
+
+        if not token_valid:
             return HttpResponseForbidden()
 
         return super().dispatch(request, *args, **kwargs)

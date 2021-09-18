@@ -80,7 +80,7 @@ class IsPresentV1(ClientCredentialsRequiredMixin, View):
         # Check if a user is present on a certain dow (auth required)
         day = self.kwargs.get('day')
         userid = self.kwargs.get('userid').strip()
-        if day == 'fri':
+        if day.startswith('fri'):
             date = Presence.next_friday()
         else:
             date = Presence.next_saturday()
