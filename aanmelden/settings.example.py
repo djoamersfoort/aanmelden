@@ -129,4 +129,11 @@ IDP_INTROSPECTION_URL = 'https://leden.djoamersfoort.nl/o/introspect/'
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-SLOTS = 16
+# Map of #tutors -> additional slots
+SLOT_LEVELS = {
+    0: 16,
+    1: 4,
+    5: 4,
+    6: 2,
+    7: 2,
+}

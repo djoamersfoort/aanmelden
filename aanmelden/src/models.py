@@ -42,7 +42,7 @@ class Presence(models.Model):
                 "closed": SpecialDate.is_closed(friday, 'e'),
                 "available": Presence.slots_available(friday, 'e'),
                 "taken": Presence.slots_taken(friday, 'e'),
-                "tutor_count": Presence.objects.filter(date=friday, pod='e', user__is_superuser=True).count(),
+                "tutor_count": Presence.get_tutor_count(friday, 'e'),
                 "tutors": list(Presence.objects.filter(date=friday, pod='e', user__is_superuser=True)
                                .values_list('user__first_name', flat=True)),
                 "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
@@ -56,7 +56,7 @@ class Presence(models.Model):
                 "closed": SpecialDate.is_closed(saturday, 'm'),
                 "available": Presence.slots_available(saturday, 'm'),
                 "taken": Presence.slots_taken(saturday, 'm'),
-                "tutor_count": Presence.objects.filter(date=saturday, pod='m', user__is_superuser=True).count(),
+                "tutor_count": Presence.get_tutor_count(saturday, 'm'),
                 "tutors": list(Presence.objects.filter(date=saturday, pod='m', user__is_superuser=True)
                                .values_list('user__first_name', flat=True)),
                 "registered": Presence.objects.filter(user=user, date=saturday, pod='m').count() > 0,
@@ -87,6 +87,13 @@ class Presence(models.Model):
         return today + datetime.timedelta((5 - today.weekday()) % 7)
 
     @staticmethod
+    def get_tutor_count(date, pod=None):
+        if pod:
+            return Presence.objects.filter(date=date, pod=pod, user__is_superuser=True).count()
+        else:
+            return Presence.objects.filter(date=date, user__is_superuser=True).count()
+
+    @staticmethod
     def slots_available(on_date, pod=None):
         try:
             special_date = SpecialDate.objects.get(date=on_date, pod=pod)
@@ -96,11 +103,17 @@ class Presence(models.Model):
             except SpecialDate.DoesNotExist:
                 special_date = None
 
-        slots_available = settings.SLOTS
+        slots_available = 0
         if special_date:
             slots_available = special_date.free_slots
             if special_date.closed:
                 slots_available = 0
+        else:
+            # Add more slots depending on nr of tutors
+            tutor_count = Presence.get_tutor_count(on_date, pod)
+            for amount, extra in settings.SLOT_LEVELS.items():
+                if tutor_count >= amount:
+                    slots_available += extra
 
         return slots_available - Presence.slots_taken(on_date, pod)
 

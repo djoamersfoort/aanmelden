@@ -6,7 +6,7 @@ from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.db import IntegrityError
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin
@@ -84,7 +84,6 @@ class Main(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'slots': Presence.get_available_slots(self.request.user),
-            'total_slots': settings.SLOTS
         })
         return context
 
