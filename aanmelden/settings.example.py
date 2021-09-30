@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    'mathfilters',
     'aanmelden.src'
 ]
 
@@ -126,8 +127,12 @@ IDP_API_SCOPES = ['user/basic', 'user/names', 'user/email']
 INTROSPECTION_CLIENT_ID = '<client id>'
 INTROSPECTION_CLIENT_SECRET = '<client secret>'
 IDP_INTROSPECTION_URL = 'https://leden.djoamersfoort.nl/o/introspect/'
+# Corvee is allowed to call the 'presence' API
+API_CLIENT_WHITELIST = ['xxxxxxx']
+
 SESSION_COOKIE_SECURE = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_HTTPONLY = True
 
 # Map of #tutors -> additional slots
 SLOT_LEVELS = {
