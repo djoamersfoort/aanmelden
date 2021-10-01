@@ -28,7 +28,7 @@
                     <div class="card-body">
                         <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> {{ slot.description }} </h4></div>
                         <div class="small">{% if slot.registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>
-                        <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} nog <span class="badge badge-primary">{{ slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
+                        <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} <span class="badge badge-primary">{{ slot.available }} / {{ slot.taken|add:slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
                     </div>
                     <div class="card-text">
                         <p><i class="fas fa-user-tie"></i> Aanwezige begeleiders: <br> {{ slot.tutors|join:", "|default:"-" }}</p>
