@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container text-center">
+    <div class="jumbotron mt-md-5 mt-3">
+        <i class="fas fa-calendar-times fa-5x mt-3 text-primary"></i>
+        <div class="mt-2 h-title">Oei, je hebt je al aangemeld voor een andere dag in hetzelfde weekend!
+            Wil je toch een keer 2 keer komen? Vraag dan een <a href="https://www.djoamersfoort.nl/organisatie/bestuur/">bestuurslid</a> om toestemming.
+        </div>
+        <div class="lead">Terug naar de <a href="{% url 'main' %}">homepage</a>.</div>
+    </div>
+</div>
+
+{% endblock %}

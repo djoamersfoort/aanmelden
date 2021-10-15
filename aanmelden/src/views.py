@@ -108,7 +108,7 @@ class Register(LoginRequiredMixin, TemplateView):
                 .filter(user=request.user).count()
             allowed_count = len(request.session['days'].split(','))
             if reg_count >= allowed_count:
-                return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+                return HttpResponseRedirect(reverse('only_once'))
 
         presence = Presence()
         presence.date = registration_date
@@ -146,6 +146,10 @@ class DeRegister(LoginRequiredMixin, TemplateView):
 
 class Full(LoginRequiredMixin, TemplateView):
     template_name = 'full.html'
+
+
+class OnlyOnce(LoginRequiredMixin, TemplateView):
+    template_name = 'only_once.html'
 
 
 @method_decorator(never_cache, name='dispatch')
