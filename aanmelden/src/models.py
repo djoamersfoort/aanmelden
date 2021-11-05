@@ -12,7 +12,7 @@ class DjoUser(User):
     @staticmethod
     def is_begeleider(account_type):
         types = account_type.split(',')
-        return 'begeleider' in types or 'aspirant_begeleider' in types
+        return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
