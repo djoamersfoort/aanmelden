@@ -11,7 +11,7 @@ from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Presence, DjoUser
+from .models import Presence, DjoUser, UserInfo
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -49,17 +49,19 @@ class LoginResponseView(View):
                 found_user.username = username
                 found_user.set_unusable_password()
 
+            if not hasattr(found_user, 'userinfo'):
+                found_user.userinfo = UserInfo()
             found_user.email = user_profile['email']
             found_user.first_name = user_profile['firstName']
             found_user.last_name = user_profile['lastName']
             account_type = user_profile['accountType']
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
+            found_user.userinfo.days = len(user_profile['days'].split(','))
+            found_user.userinfo.over_18 = user_profile['age'] >= 18
             found_user.save()
+            found_user.userinfo.save()
 
             auth_login(request, found_user)
-
-            # Store user presence days in the current session to validate registrations
-            request.session['days'] = user_profile['days']
 
             if found_user.is_superuser:
                 return HttpResponseRedirect(reverse('report'))
@@ -106,8 +108,7 @@ class Register(LoginRequiredMixin, TemplateView):
             # Check if allowed to register for the number of days
             reg_count = Presence.objects.filter(Q(date=Presence.next_friday()) | Q(date=Presence.next_saturday())) \
                 .filter(user=request.user).count()
-            allowed_count = len(request.session['days'].split(','))
-            if reg_count >= allowed_count:
+            if reg_count >= request.user.userinfo.days:
                 return HttpResponseRedirect(reverse('only_once'))
 
         presence = Presence()

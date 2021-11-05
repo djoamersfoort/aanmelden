@@ -18,6 +18,15 @@ class DjoUser(User):
         return f"{self.first_name} {self.last_name} ({self.username})"
 
 
+class UserInfo(models.Model):
+    user: DjoUser = models.OneToOneField(User, on_delete=models.CASCADE)
+    days = models.IntegerField(default=1, null=False)
+    over_18 = models.BooleanField(default=False, null=False)
+
+    def __str__(self):
+        return f"User details for {self.user.first_name} {self.user.last_name}"
+
+
 class Presence(models.Model):
 
     class Meta:
