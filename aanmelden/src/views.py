@@ -57,7 +57,8 @@ class LoginResponseView(View):
             account_type = user_profile['accountType']
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
             found_user.userinfo.days = len(user_profile['days'].split(','))
-            found_user.userinfo.over_18 = user_profile['age'] >= 18
+            if 'age' in user_profile:
+                found_user.userinfo.over_18 = user_profile['age'] >= 18
             found_user.save()
             found_user.userinfo.save()
 
