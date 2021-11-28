@@ -43,20 +43,20 @@ class Presence(models.Model):
         friday = Presence.next_friday()
         saturday = Presence.next_saturday()
         slots = [
-            {
-                "description": "Vrijdag (19:00 - 22:00)",
-                "pod": "e",
-                "name": 'fri',
-                "date": friday,
-                "closed": SpecialDate.is_closed(friday, 'e'),
-                "available": Presence.slots_available(friday, 'e'),
-                "taken": Presence.slots_taken(friday, 'e'),
-                "tutor_count": Presence.get_tutor_count(friday, 'e'),
-                "tutors": list(Presence.objects.filter(date=friday, pod='e', user__is_superuser=True)
-                               .values_list('user__first_name', flat=True)),
-                "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
-                "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
-            },
+            # {
+            #     "description": "Vrijdag (19:00 - 22:00)",
+            #     "pod": "e",
+            #     "name": 'fri',
+            #     "date": friday,
+            #     "closed": SpecialDate.is_closed(friday, 'e'),
+            #     "available": Presence.slots_available(friday, 'e'),
+            #     "taken": Presence.slots_taken(friday, 'e'),
+            #     "tutor_count": Presence.get_tutor_count(friday, 'e'),
+            #     "tutors": list(Presence.objects.filter(date=friday, pod='e', user__is_superuser=True)
+            #                    .values_list('user__first_name', flat=True)),
+            #     "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
+            #     "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
+            # },
             {
                 "description": "Zaterdag (09:30 - 13:30)",
                 "pod": "m",
