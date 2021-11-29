@@ -7,13 +7,7 @@
 <div class="jumbotron text-center">
     <div class="container">
         <h1 class="display-4">Hallo {{ user.first_name }}!</h1>
-        <p class="lead">Als begeleider kun je hier een lid of gast handmatig aanmelden voor
-         aankomende {% if view.kwargs.day == 'fri' %}vrijdag{% else %}zaterdag{% endif %}
-          {% if view.kwargs.pod == 'm' %} ochtend (09:30 - 13:30)! {% endif %}
-          {% if view.kwargs.pod == 'a' %} middag (13:30 - 17:00)! {% endif %}
-          {% if view.kwargs.pod == 'e' %} avond (19:00 - 22:00)!{% endif %}
-        </p>
-
+        <p class="lead">Als begeleider kun je hier een lid of gast handmatig aanmelden voor {{ slot.description }}</p>
         <hr class="my-4">
     </div>
 </div>

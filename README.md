@@ -7,21 +7,6 @@ Site om leden te laten aanmelden
 
 De volgende API endpoints zijn aanwezig:
 
-
-### /api/v1/free
-Geeft per dag het aantal vrije slots terug. Voorbeeld:
-
-```json
-{"friday": 15, "saturday": 8}
-```
-
-### /api/v1/free/\<dag\>
-Geeft per dag het aantal vrije slots terug. De gewenste dag wordt al parameter meegegeven. Voorbeeld:
-
-```json
-{"friday": 15}
-```
-
 ### /api/v2/free
 Uitgebreide versie van de 'free' API.
 Geeft per dagdeel het aantal vrije slots, aantal begeleiders, datum, tijden, etc. terug:
@@ -51,11 +36,14 @@ Geeft per dagdeel het aantal vrije slots, aantal begeleiders, datum, tijden, etc
 ]
 ```
 
-### /api/v1/is_present/\<dag\>/\<user_id\>
-Geeft terug of een bepaald DJO lid op de opgegeven dag aangemeld is.
+### /api/v1/is_present/\<dag\>/\<pod\>/\<user_id\>
+Geeft terug of een bepaald DJO lid op de opgegeven dag + dagdeel aangemeld is.
 Voor dit endpoint is autorisatie nodig. In de Authorization header wordt een Bearer token
 verwacht met grant_type 'client_credentials', waarvan het bijbehorende client_id is ge-whitelist
 voor deze API. Bedoeld voor de Corveeapplicatie.
 
 `dag` kan 'fri' of 'sat' zijn.
+
+`pod` Dagdeel: kan 'm', 'a', of 'e' zijn (morning, afternoon, evening).
+
 `user_id` is het IDP userid (idp-\<nummer\>) van het op te vragen DJO lid.

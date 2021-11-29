@@ -5,13 +5,12 @@ from django.utils.decorators import method_decorator
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
-from .mixins import BegeleiderRequiredMixin
+from .mixins import BegeleiderRequiredMixin, SlotContextMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Presence, DjoUser, UserInfo
+from .models import Presence, DjoUser, UserInfo, Slot
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -80,41 +79,29 @@ class LogoffView(LoginRequiredMixin, View):
 
 
 @method_decorator(never_cache, name='dispatch')
-class Main(LoginRequiredMixin, TemplateView):
+class Main(LoginRequiredMixin, SlotContextMixin, TemplateView):
     template_name = 'main.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'slots': Presence.get_available_slots(self.request.user),
-        })
-        return context
 
 
 @method_decorator(never_cache, name='dispatch')
-class Register(LoginRequiredMixin, TemplateView):
+class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
     template_name = 'registered.html'
 
     def get(self, request, *args, **kwargs):
-        if kwargs.get('day') == 'fri':
-            registration_date = Presence.next_friday()
-        else:
-            registration_date = Presence.next_saturday()
-        pod = self.kwargs.get('pod')
-
         if not request.user.is_superuser:
             # Check if any slots are available server side
-            if Presence.slots_available(registration_date, pod) <= 0:
+            if Presence.slots_available(self.slot.date, self.slot.pod) <= 0:
                 return HttpResponseRedirect(reverse('full', kwargs=kwargs))
             # Check if allowed to register for the number of days
-            reg_count = Presence.objects.filter(Q(date=Presence.next_friday()) | Q(date=Presence.next_saturday())) \
-                .filter(user=request.user).count()
+            dates = [slot.date for slot in Slot.objects.filter(enabled=True)]
+            reg_count = Presence.objects.filter(date__in=dates).filter(user=request.user).count()
+            print(reg_count)
             if reg_count >= request.user.userinfo.days:
                 return HttpResponseRedirect(reverse('only_once'))
 
         presence = Presence()
-        presence.date = registration_date
-        presence.pod = pod
+        presence.date = self.slot.date
+        presence.pod = self.slot.pod
         presence.user = request.user
 
         try:
@@ -127,17 +114,12 @@ class Register(LoginRequiredMixin, TemplateView):
 
 
 @method_decorator(never_cache, name='dispatch')
-class DeRegister(LoginRequiredMixin, TemplateView):
+class DeRegister(LoginRequiredMixin, SlotContextMixin, TemplateView):
     template_name = 'deregistered.html'
 
     def get(self, request, *args, **kwargs):
-        pod = kwargs.get('pod')
-        if kwargs.get('day') == 'fri':
-            registration_date = Presence.next_friday()
-        else:
-            registration_date = Presence.next_saturday()
         try:
-            presence = Presence.objects.get(date=registration_date, user=self.request.user, pod=pod)
+            presence = Presence.objects.get(date=self.slot.date, user=self.request.user, pod=self.slot.pod)
             if presence:
                 presence.delete()
         except Presence.DoesNotExist:
@@ -146,7 +128,7 @@ class DeRegister(LoginRequiredMixin, TemplateView):
         return super().get(request, args, kwargs)
 
 
-class Full(LoginRequiredMixin, TemplateView):
+class Full(LoginRequiredMixin, SlotContextMixin, TemplateView):
     template_name = 'full.html'
 
 
@@ -161,13 +143,13 @@ class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update({'slots': Presence.get_available_slots(self.request.user)})
+        context.update({'slots': Slot.get_enabled_slots(self.request.user)})
         return context
 
     def get_queryset(self):
-        fri = Presence.next_friday()
-        sat = Presence.next_saturday()
-        return Presence.objects.filter(Q(date=fri) | Q(date=sat)).order_by('-user__is_superuser')
+        slots = Slot.objects.filter(enabled=True)
+        dates = [slot.date for slot in slots]
+        return Presence.objects.filter(date__in=dates).order_by('-user__is_superuser')
 
 
 class MarkAsSeen(LoginRequiredMixin, View):
@@ -187,18 +169,15 @@ class MarkAsSeen(LoginRequiredMixin, View):
 
 
 @method_decorator(never_cache, name='dispatch')
-class RegisterManual(BegeleiderRequiredMixin, CreateView):
+class RegisterManual(BegeleiderRequiredMixin, SlotContextMixin, CreateView):
     template_name = 'register_manual.html'
     model = Presence
     fields = ['user']
     success_url = reverse_lazy('report')
 
     def form_valid(self, form):
-        form.instance.pod = self.kwargs.get('pod')
-        if self.kwargs.get('day') == 'fri':
-            form.instance.date = Presence.next_friday()
-        else:
-            form.instance.date = Presence.next_saturday()
+        form.instance.date = self.slot.date
+        form.instance.pod = self.slot.pod
         return super().form_valid(form)
 
     def post(self, request, *args, **kwargs):

@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http.response import HttpResponseForbidden
+from django.http.response import HttpResponseForbidden, HttpResponseNotFound
 from django.conf import settings
 from django.core.cache import cache
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
+from .models import Slot
 
 
 class BegeleiderRequiredMixin(UserPassesTestMixin):
@@ -71,5 +72,27 @@ class ClientCredentialsRequiredMixin:
 
         if not token_valid:
             return HttpResponseForbidden()
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SlotContextMixin:
+    def __init__(self):
+        self.slot = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'slot': Slot.get(self.kwargs.get('day'), self.kwargs.get('pod'))
+        })
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        day = self.kwargs.get('day')
+        pod = self.kwargs.get('pod')
+        self.slot = Slot.get(day, pod)
+
+        if not self.slot:
+            return HttpResponseNotFound("Slot with the specified parameters does not exist!")
 
         return super().dispatch(request, *args, **kwargs)

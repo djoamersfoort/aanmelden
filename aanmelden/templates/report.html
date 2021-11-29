@@ -70,7 +70,7 @@
                         <a class="btn btn-primary btn-block register" href="{% url 'register-manual' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Lid Handmatig Aanmelden</a>
                     </div>
                     <div class="card-footer p-0 mt-2">
-                        {% if not slot.day_registered %}
+                        {% if not slot.is_registered %}
                           <a class="btn btn-primary btn-block register" href="{% url 'register' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden als begeleider</a>
                         {% else %}
                           <a class="btn btn-link btn-block register" href="{% url 'deregister' slot.name slot.pod %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden als begeleider</a>

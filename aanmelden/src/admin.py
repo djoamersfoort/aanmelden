@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Presence, SpecialDate, MacAddress, DjoUser, UserInfo, User
+from .models import Presence, SpecialDate, MacAddress, UserInfo, User, Slot
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
@@ -29,3 +29,4 @@ admin.site.register(User, UserAdmin)
 admin.site.register(UserInfo)
 admin.site.register(SpecialDate)
 admin.site.register(MacAddress)
+admin.site.register(Slot)

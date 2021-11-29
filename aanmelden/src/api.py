@@ -1,5 +1,5 @@
 from django.views.generic import View
-from .models import Presence, MacAddress
+from .models import Presence, MacAddress, Slot
 from .mixins import ClientCredentialsRequiredMixin
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,33 +8,12 @@ from django.conf import settings
 from datetime import date
 
 
-class FreeDay(View):
-    def get(self, request, *args, **kwargs):
-        day = self.kwargs.get('day')
-        if day == 'fri':
-            free = Presence.slots_available(Presence.next_friday(), pod='e')
-        else:
-            free = Presence.slots_available(Presence.next_saturday(), pod='m')
-        return JsonResponse(data={"free": free})
-
-
-class Free(View):
-    def get(self, request, *args, **kwargs):
-        fri = Presence.slots_available(Presence.next_friday(), pod='e')
-        sat = Presence.slots_available(Presence.next_saturday(), pod='m')
-        return JsonResponse({
-            "friday": fri,
-            "saturday": sat
-        })
-
-
 class FreeV2(View):
     def get(self, request, *args, **kwargs):
-        slots = Presence.get_available_slots()
+        slots = Slot.get_enabled_slots()
         for slot in slots:
             slot.pop('tutors', None)
-            slot.pop('registered', None)
-            slot.pop('day_registered', None)
+            slot.pop('is_registered', None)
 
         return JsonResponse(slots, safe=False)
 
@@ -73,20 +52,18 @@ class MacEvent(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class IsPresentV1(ClientCredentialsRequiredMixin, View):
+class IsPresentV2(ClientCredentialsRequiredMixin, View):
     whitelisted_client_ids = settings.API_CLIENT_WHITELIST
 
     def post(self, request, *args, **kwargs):
-        # Check if a user is present on a certain dow (auth required)
+        # Check if a user is present on a certain dow/pod (auth required)
         day = self.kwargs.get('day')
+        pod = self.kwargs.get('pod')
         userid = self.kwargs.get('userid').strip()
-        if day.startswith('fri'):
-            date = Presence.next_friday()
-        else:
-            date = Presence.next_saturday()
+        slot = Slot.get(day, pod)
 
         try:
-            Presence.objects.get(date=date, user__username=userid)
+            Presence.objects.get(date=slot.date, pod=slot.pod, user__username=userid)
         except Presence.DoesNotExist:
             return JsonResponse({'present': False})
         return JsonResponse({'present': True})

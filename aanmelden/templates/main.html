@@ -27,7 +27,7 @@
                 <div class="card border-primary">
                     <div class="card-body">
                         <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> {{ slot.description }} </h4></div>
-                        <div class="small">{% if slot.registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>
+                        <div class="small">{% if slot.is_registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>
                         <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} <span class="badge badge-primary">{{ slot.available }} / {{ slot.taken|add:slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
                     </div>
                     <div class="card-text">
@@ -35,9 +35,9 @@
                     </div>
                     {% if not user.is_superuser %}
                     <div class="card-footer p-0">
-                        {% if slot.available != 0 and not slot.day_registered %}
+                        {% if slot.available != 0 and not slot.is_registered %}
                           <a class="btn btn-primary btn-block register" href="{% url 'register' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
-                        {% elif slot.registered %}
+                        {% elif slot.is_registered %}
                           <a class="btn btn-link btn-block register" href="{% url 'deregister' slot.name slot.pod %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
                         {% endif %}
                     </div>

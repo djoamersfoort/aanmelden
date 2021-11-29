@@ -6,11 +6,7 @@
 <div class="container text-center">
     <div class="jumbotron mt-md-5 mt-3">
         <i class="fas fa-calendar-times fa-5x mt-3 text-primary"></i>
-        <div class="mt-2 h-title">Helaas, er is geen plek meer op {% if view.kwargs.day == 'fri' %}vrijdag{% else %}zaterdag{% endif %}
-          {% if view.kwargs.pod == 'm' %} ochtend (09:30 - 13:30)! {% endif %}
-          {% if view.kwargs.pod == 'a' %} middag (13:30 - 17:00)! {% endif %}
-          {% if view.kwargs.pod == 'e' %} avond (19:00 - 22:00)!{% endif %}
-        </div>
+        <div class="mt-2 h-title">Helaas, er is geen plek meer op {{ slot.description }}</div>
         <div class="lead">Terug naar de <a href="{% url 'main' %}">homepage</a>.</div>
     </div>
 </div>

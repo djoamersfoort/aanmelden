@@ -1,7 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.forms.models import model_to_dict
 import datetime
+
+POD_CHOICES = (
+    ('m', 'Ochtend'),
+    ('a', 'Middag'),
+    ('e', 'Avond'),
+)
+
+DAY_CHOICES = (
+    ('fri', 'Vrijdag'),
+    ('sat', 'Zaterdag')
+)
 
 
 class DjoUser(User):
@@ -27,10 +39,78 @@ class UserInfo(models.Model):
         return f"User details for {self.user.first_name} {self.user.last_name}"
 
 
-class Presence(models.Model):
-
+class Slot(models.Model):
     class Meta:
-        unique_together = ('user', 'date')
+        unique_together = ['name', 'pod']
+
+    name = models.CharField(max_length=3, choices=DAY_CHOICES)
+    pod = models.CharField(choices=POD_CHOICES, max_length=1)
+    description = models.CharField(max_length=255)
+    enabled = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.name}-{self.pod}: {self.description}"
+
+    @property
+    def date(self):
+        day_numbers = {
+            'fri': 4,
+            'sat': 5,
+        }
+
+        today = datetime.date.today()
+        return today + datetime.timedelta((day_numbers[self.name] - today.weekday()) % 7)
+
+    @property
+    def closed(self):
+        return SpecialDate.is_closed(self.date, self.pod)
+
+    @property
+    def available(self):
+        return Presence.slots_available(self.date, self.pod)
+
+    @property
+    def taken(self):
+        return Presence.slots_taken(self.date, self.pod)
+
+    @property
+    def tutor_count(self):
+        return Presence.get_tutor_count(self.date, self.pod)
+
+    @property
+    def tutors(self):
+        return list(Presence.objects.filter(date=self.date, pod=self.pod, user__is_superuser=True)
+                    .values_list('user__first_name', flat=True))
+
+    def is_registered(self, user):
+        return Presence.objects.filter(user=user, date=self.date, pod=self.pod).count() > 0
+
+    @staticmethod
+    def get_enabled_slots(user=None):
+        slots = Slot.objects.filter(enabled=True)
+        available_slots = []
+        for slot in slots:
+            available_slot = model_to_dict(slot)
+            available_slot.pop('id')
+            for field in ['date', 'taken', 'available', 'closed', 'tutor_count', 'tutors']:
+                available_slot[field] = slot.__getattribute__(field)
+            if user:
+                available_slot['is_registered'] = slot.is_registered(user)
+            available_slots.append(available_slot)
+        return available_slots
+
+    @staticmethod
+    def get(day: str, pod: str):
+        try:
+            slot = Slot.objects.get(name=day, pod=pod)
+        except Slot.DoesNotExist:
+            slot = None
+        return slot
+
+
+class Presence(models.Model):
+    class Meta:
+        unique_together = ('user', 'date', 'pod')
         indexes = [
             models.Index(fields=['date', 'pod']),
             models.Index(fields=['date', 'user']),
@@ -38,62 +118,15 @@ class Presence(models.Model):
             models.Index(fields=['date']),
         ]
 
-    @staticmethod
-    def get_available_slots(user=None):
-        friday = Presence.next_friday()
-        saturday = Presence.next_saturday()
-        slots = [
-            # {
-            #     "description": "Vrijdag (19:00 - 22:00)",
-            #     "pod": "e",
-            #     "name": 'fri',
-            #     "date": friday,
-            #     "closed": SpecialDate.is_closed(friday, 'e'),
-            #     "available": Presence.slots_available(friday, 'e'),
-            #     "taken": Presence.slots_taken(friday, 'e'),
-            #     "tutor_count": Presence.get_tutor_count(friday, 'e'),
-            #     "tutors": list(Presence.objects.filter(date=friday, pod='e', user__is_superuser=True)
-            #                    .values_list('user__first_name', flat=True)),
-            #     "registered": Presence.objects.filter(user=user, date=friday, pod='e').count() > 0,
-            #     "day_registered": Presence.objects.filter(user=user, date=friday).count() > 0
-            # },
-            {
-                "description": "Zaterdag (09:30 - 13:30)",
-                "pod": "m",
-                "name": 'sat',
-                "date": saturday,
-                "closed": SpecialDate.is_closed(saturday, 'm'),
-                "available": Presence.slots_available(saturday, 'm'),
-                "taken": Presence.slots_taken(saturday, 'm'),
-                "tutor_count": Presence.get_tutor_count(saturday, 'm'),
-                "tutors": list(Presence.objects.filter(date=saturday, pod='m', user__is_superuser=True)
-                               .values_list('user__first_name', flat=True)),
-                "registered": Presence.objects.filter(user=user, date=saturday, pod='m').count() > 0,
-                "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
-            },
-            # {
-            #     "description": "Zaterdag (13:30 - 17:00)",
-            #     "pod": "a",
-            #     "name": 'sat',
-            #     "date": saturday,
-            #     "closed": SpecialDate.is_closed(saturday, 'a'),
-            #     "available": Presence.slots_available(saturday, 'a'),
-            #     "taken": Presence.slots_taken(saturday, 'a'),
-            #     "registered": Presence.objects.filter(user=user, date=saturday, pod='a').count() > 0,
-            #     "day_registered": Presence.objects.filter(user=user, date=saturday).count() > 0
-            # }
-        ]
-        return slots
-
-    @staticmethod
-    def next_friday():
-        today = datetime.date.today()
-        return today + datetime.timedelta((4 - today.weekday()) % 7)
-
-    @staticmethod
-    def next_saturday():
-        today = datetime.date.today()
-        return today + datetime.timedelta((5 - today.weekday()) % 7)
+    # @staticmethod
+    # def next_friday():
+    #     today = datetime.date.today()
+    #     return today + datetime.timedelta((4 - today.weekday()) % 7)
+    #
+    # @staticmethod
+    # def next_saturday():
+    #     today = datetime.date.today()
+    #     return today + datetime.timedelta((5 - today.weekday()) % 7)
 
     @staticmethod
     def get_tutor_count(date, pod=None):
@@ -138,12 +171,6 @@ class Presence(models.Model):
         ('manual', 'Handmatig Aangemeld')
     )
 
-    POD_CHOICES = (
-        ('m', 'Ochtend'),
-        ('a', 'Middag'),
-        ('e', 'Avond'),
-    )
-
     user = models.ForeignKey(DjoUser, models.CASCADE)
     date = models.DateField()
     pod = models.CharField(choices=POD_CHOICES, max_length=1, null=True)
@@ -154,7 +181,7 @@ class Presence(models.Model):
 class SpecialDate(models.Model):
     date = models.DateField()
     free_slots = models.IntegerField()
-    pod = models.CharField(choices=Presence.POD_CHOICES, max_length=1, null=True, blank=True)
+    pod = models.CharField(choices=POD_CHOICES, max_length=1, null=True, blank=True)
     closed = models.BooleanField()
 
     @staticmethod

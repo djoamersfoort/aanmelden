@@ -29,11 +29,9 @@ urlpatterns = [
     path('only_once/', views.OnlyOnce.as_view(), name='only_once'),
     path('report/', views.Report.as_view(), name='report'),
     path('logoff/', views.LogoffView.as_view(), name='logoff'),
-    path('api/v1/free/<str:day>', api.FreeDay.as_view()),
     path('api/v2/free', api.FreeV2.as_view()),
-    path('api/v1/free', api.Free.as_view()),
     path('api/v1/mac_event', api.MacEvent.as_view()),
-    path('api/v1/is_present/<str:day>/<str:userid>', api.IsPresentV1.as_view()),
+    path('api/v2/is_present/<str:day>/<str:pod>/<str:userid>', api.IsPresentV2.as_view()),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
     path('', views.LoginView.as_view(), name='login'),
 ]
