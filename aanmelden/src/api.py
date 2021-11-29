@@ -1,6 +1,6 @@
 from django.views.generic import View
 from .models import Presence, MacAddress, Slot
-from .mixins import ClientCredentialsRequiredMixin
+from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -52,18 +52,15 @@ class MacEvent(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class IsPresentV2(ClientCredentialsRequiredMixin, View):
+class IsPresentV2(ClientCredentialsRequiredMixin, SlotContextMixin, View):
     whitelisted_client_ids = settings.API_CLIENT_WHITELIST
 
     def post(self, request, *args, **kwargs):
         # Check if a user is present on a certain dow/pod (auth required)
-        day = self.kwargs.get('day')
-        pod = self.kwargs.get('pod')
         userid = self.kwargs.get('userid').strip()
-        slot = Slot.get(day, pod)
 
         try:
-            Presence.objects.get(date=slot.date, pod=slot.pod, user__username=userid)
+            Presence.objects.get(date=self.slot.date, pod=self.slot.pod, user__username=userid)
         except Presence.DoesNotExist:
             return JsonResponse({'present': False})
         return JsonResponse({'present': True})
