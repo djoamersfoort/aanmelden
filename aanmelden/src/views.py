@@ -79,8 +79,13 @@ class LogoffView(LoginRequiredMixin, View):
 
 
 @method_decorator(never_cache, name='dispatch')
-class Main(LoginRequiredMixin, SlotContextMixin, TemplateView):
+class Main(LoginRequiredMixin, TemplateView):
     template_name = 'main.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'slots': Slot.get_enabled_slots(self.request.user)})
+        return context
 
 
 @method_decorator(never_cache, name='dispatch')
