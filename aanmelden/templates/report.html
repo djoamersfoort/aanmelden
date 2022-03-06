@@ -28,6 +28,9 @@
                     <div class="card-body">
                         <h4 class="card-title text-center"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
                         <div class="small text-center">{{ slot.date }}</div>
+                        {% if slot.announcement %}
+                        <div class="card-text alert alert-primary">{{ slot.announcement | safe }}</div>
+                        {% endif %}
                         <div class="text-center">
                             <p>Slots beschikbaar:
                                 {% if slot.available == 0 %}
