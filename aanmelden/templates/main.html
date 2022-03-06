@@ -12,13 +12,6 @@
     <div class="container">
         <h1 class="display-4">Hallo {{ user.first_name }}!</h1>
         <p class="lead">Je kunt je hier aanmelden voor DJO voor aankomend weekend</p>
-
-        <hr class="my-4">
-
-        <div class="container">
-            Afhankelijk van het aantal begeleiders, komen er meer of minder plekken beschikbaar.<br>
-            Als er nu geen plekken zijn, kijk dan later nog eens, wellicht dat er dan meer begeleiders zijn aangemeld.
-        </div>
     </div>
 </div>
 
@@ -33,6 +26,9 @@
                     <div class="card-body">
                         <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> {{ slot.description }} </h4></div>
                         <div class="small">{% if slot.is_registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>
+                        {% if slot.announcement %}
+                        <div class="card-text alert alert-primary">{{ slot.announcement | safe }}</div>
+                        {% endif %}
                         <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} <span class="badge badge-primary">{{ slot.available }} / {{ slot.taken|add:slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
                     </div>
                     <div class="card-text">

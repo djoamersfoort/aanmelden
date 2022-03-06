@@ -82,6 +82,14 @@ class Slot(models.Model):
         return list(Presence.objects.filter(date=self.date, pod=self.pod, user__is_superuser=True)
                     .values_list('user__first_name', flat=True))
 
+    @property
+    def announcement(self):
+        try:
+            special_date = SpecialDate.objects.get(date=self.date, pod=self.pod)
+        except SpecialDate.DoesNotExist:
+            return ""
+        return special_date.announcement
+
     def is_registered(self, user):
         return Presence.objects.filter(user=user, date=self.date, pod=self.pod).count() > 0
 
@@ -92,7 +100,7 @@ class Slot(models.Model):
         for slot in slots:
             available_slot = model_to_dict(slot)
             available_slot.pop('id')
-            for field in ['date', 'taken', 'available', 'closed', 'tutor_count', 'tutors']:
+            for field in ['date', 'taken', 'available', 'closed', 'tutor_count', 'tutors', 'announcement']:
                 available_slot[field] = slot.__getattribute__(field)
             if user:
                 available_slot['is_registered'] = slot.is_registered(user)
@@ -118,16 +126,6 @@ class Presence(models.Model):
             models.Index(fields=['date']),
         ]
 
-    # @staticmethod
-    # def next_friday():
-    #     today = datetime.date.today()
-    #     return today + datetime.timedelta((4 - today.weekday()) % 7)
-    #
-    # @staticmethod
-    # def next_saturday():
-    #     today = datetime.date.today()
-    #     return today + datetime.timedelta((5 - today.weekday()) % 7)
-
     @staticmethod
     def get_tutor_count(date, pod=None):
         if pod:
@@ -146,7 +144,7 @@ class Presence(models.Model):
                 special_date = None
 
         slots_available = 0
-        if special_date:
+        if special_date and special_date.free_slots > 0:
             slots_available = special_date.free_slots
             if special_date.closed:
                 slots_available = 0
@@ -182,6 +180,7 @@ class SpecialDate(models.Model):
     date = models.DateField()
     free_slots = models.IntegerField()
     pod = models.CharField(choices=POD_CHOICES, max_length=1, null=True, blank=True)
+    announcement = models.TextField(null=True, blank=True)
     closed = models.BooleanField()
 
     @staticmethod
