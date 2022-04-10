@@ -55,7 +55,7 @@ class LoginResponseView(View):
             found_user.last_name = user_profile['lastName']
             account_type = user_profile['accountType']
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
-            found_user.userinfo.days = len(user_profile['days'].split(','))
+            found_user.userinfo.days = user_profile['days']
             if 'age' in user_profile:
                 found_user.userinfo.age = user_profile['age']
             found_user.save()
@@ -100,7 +100,6 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
             # Check if allowed to register for the number of days
             dates = [slot.date for slot in Slot.objects.filter(enabled=True)]
             reg_count = Presence.objects.filter(date__in=dates).filter(user=request.user).count()
-            print(reg_count)
             if reg_count >= request.user.userinfo.days:
                 return HttpResponseRedirect(reverse('only_once'))
 
