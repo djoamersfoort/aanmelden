@@ -5,7 +5,7 @@ from django.utils.decorators import method_decorator
 from requests_oauthlib import OAuth2Session
 from django.contrib.auth import logout, login as auth_login
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from .mixins import BegeleiderRequiredMixin, SlotContextMixin
@@ -169,7 +169,7 @@ class MarkAsSeen(LoginRequiredMixin, View):
         except Presence.DoesNotExist:
             # Presence not found, who cares
             pass
-        return HttpResponseRedirect(reverse('report'))
+        return JsonResponse({"ok": True})
 
 
 @method_decorator(never_cache, name='dispatch')
