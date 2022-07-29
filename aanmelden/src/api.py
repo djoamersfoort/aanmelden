@@ -1,11 +1,13 @@
-from django.views.generic import View
-from .models import Presence, MacAddress, Slot
-from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.conf import settings
 from datetime import date
+
+from django.conf import settings
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+
+from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin
+from .models import Presence, MacAddress, Slot
 
 
 class FreeV2(View):
@@ -64,3 +66,14 @@ class IsPresentV2(ClientCredentialsRequiredMixin, SlotContextMixin, View):
         except Presence.DoesNotExist:
             return JsonResponse({'present': False})
         return JsonResponse({'present': True})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ArePresentV2(ClientCredentialsRequiredMixin, SlotContextMixin, View):
+    whitelisted_client_ids = settings.API_CLIENT_WHITELIST
+
+    # Return a list of present user ids (IDP backend ids)
+    def post(self, request, *args, **kwargs):
+        presences = Presence.objects.filter(date=self.slot.date, pod=self.slot.pod)
+        present_members = [presence.user.username for presence in presences]
+        return JsonResponse({'members': present_members})
