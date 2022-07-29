@@ -5,3 +5,9 @@
 .h-title {
     font-size: 1.6rem;
 }
+
+.h-title ul {
+    width: fit-content;
+    margin: 1rem auto;
+    text-align: left;
+}
