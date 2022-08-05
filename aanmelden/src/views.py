@@ -1,16 +1,19 @@
-from django.views.generic import View, ListView, TemplateView
-from django.views.generic.edit import CreateView
-from django.views.decorators.cache import never_cache
-from django.utils.decorators import method_decorator
-from requests_oauthlib import OAuth2Session
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth import logout, login as auth_login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
-from django.conf import settings
 from django.urls import reverse, reverse_lazy
-from .mixins import BegeleiderRequiredMixin, SlotContextMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Presence, DjoUser, UserInfo, Slot
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from django.views.generic import View, ListView, TemplateView
+from django.views.generic.edit import CreateView
+from requests_oauthlib import OAuth2Session
+
+from aanmelden.src.mixins import BegeleiderRequiredMixin, SlotContextMixin
+from aanmelden.src.models import Presence, DjoUser, UserInfo, Slot
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -97,9 +100,15 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
             # Check if any slots are available server side
             if Presence.slots_available(self.slot.date, self.slot.pod) <= 0:
                 return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+
             # Check if allowed to register for the number of days
-            dates = [slot.date for slot in Slot.objects.filter(enabled=True)]
-            reg_count = Presence.objects.filter(date__in=dates).filter(user=request.user).count()
+            if self.slot.name == 'fri':
+                # Reg for Friday, check saturday in the same weekend
+                check_date = self.slot.date + timedelta(days=1)
+            else:
+                # Reg for Saturday, check Friday in the same weekend
+                check_date = self.slot.date - timedelta(days=1)
+            reg_count = Presence.objects.filter(date=check_date, user=request.user).count()
             if reg_count >= request.user.userinfo.days:
                 return HttpResponseRedirect(reverse('only_once'))
 
