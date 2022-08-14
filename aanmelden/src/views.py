@@ -1,3 +1,4 @@
+import asyncio
 from datetime import timedelta
 
 from django.conf import settings
@@ -12,6 +13,7 @@ from django.views.generic import View, ListView, TemplateView
 from django.views.generic.edit import CreateView
 from requests_oauthlib import OAuth2Session
 
+from aanmelden.sockets import sio
 from aanmelden.src.mixins import BegeleiderRequiredMixin, SlotContextMixin
 from aanmelden.src.models import Presence, DjoUser, UserInfo, Slot
 
@@ -123,6 +125,8 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
             # Already registered -> ignore
             pass
 
+        asyncio.run(sio.emit("update_report_page"))
+
         return super().get(request, args, kwargs)
 
 
@@ -137,6 +141,8 @@ class DeRegister(LoginRequiredMixin, SlotContextMixin, TemplateView):
                 presence.delete()
         except Presence.DoesNotExist:
             pass
+
+        asyncio.run(sio.emit("update_report_page"))
 
         return super().get(request, args, kwargs)
 
@@ -178,10 +184,14 @@ class MarkAsSeen(LoginRequiredMixin, View):
         except Presence.DoesNotExist:
             # Presence not found, who cares
             pass
+
+        # Tell all clients to update the report page
+        asyncio.run(sio.emit("update_report_page"))
+
         return JsonResponse({"ok": True})
 
 
-@method_decorator(never_cache, name='dispatch')
+# @method_decorator(never_cache, name='dispatch')
 class RegisterManual(BegeleiderRequiredMixin, SlotContextMixin, CreateView):
     template_name = 'register_manual.html'
     model = Presence
@@ -198,4 +208,5 @@ class RegisterManual(BegeleiderRequiredMixin, SlotContextMixin, CreateView):
             return super().post(request, *args, **kwargs)
         except IntegrityError as e:
             # Already registered -> ignore
+            asyncio.run(sio.emit("update_report_page"))
             return HttpResponseRedirect(reverse('report'))

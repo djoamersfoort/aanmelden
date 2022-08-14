@@ -4,11 +4,6 @@
 python3 manage.py migrate                  # Apply database migrations
 python3 manage.py collectstatic --noinput  # Collect static files
 
-# Prepare log files and start outputting logs to stdout
-touch /srv/logs/gunicorn.log
-touch /srv/logs/access.log
-tail -n 0 -f /srv/logs/*.log &
-
 # Start nginx
 nginx
 
@@ -16,12 +11,10 @@ nginx
 sh /jobs.sh &
 
 # Start Gunicorn processes
-echo Starting Gunicorn.
-exec gunicorn aanmelden.wsgi:application \
-    --name aanmelden \
-    --bind 0.0.0.0:8000 \
-    --workers 3 \
-    --log-level=info \
-    --log-file=/srv/logs/gunicorn.log \
-    --access-logfile=/srv/logs/access.log \
-    "$@"
+echo Starting uvicorn.
+exec uvicorn \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --log-level=info \
+  --access-log \
+  aanmelden.asgi:application
