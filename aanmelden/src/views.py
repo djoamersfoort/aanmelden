@@ -126,6 +126,7 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
             pass
 
         asyncio.run(sio.emit("update_report_page"))
+        asyncio.run(sio.emit("update_main_page"))
 
         return super().get(request, args, kwargs)
 
@@ -143,6 +144,7 @@ class DeRegister(LoginRequiredMixin, SlotContextMixin, TemplateView):
             pass
 
         asyncio.run(sio.emit("update_report_page"))
+        asyncio.run(sio.emit("update_main_page"))
 
         return super().get(request, args, kwargs)
 
@@ -204,9 +206,14 @@ class RegisterManual(BegeleiderRequiredMixin, SlotContextMixin, CreateView):
         return super().form_valid(form)
 
     def post(self, request, *args, **kwargs):
+
         try:
-            return super().post(request, *args, **kwargs)
+            response = super().post(request, *args, **kwargs)
         except IntegrityError as e:
             # Already registered -> ignore
-            asyncio.run(sio.emit("update_report_page"))
-            return HttpResponseRedirect(reverse('report'))
+            response = HttpResponseRedirect(reverse('report'))
+
+        # Update pages on all clients
+        asyncio.run(sio.emit("update_report_page"))
+        asyncio.run(sio.emit("update_main_page"))
+        return response

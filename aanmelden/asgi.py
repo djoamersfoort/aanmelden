@@ -14,6 +14,7 @@ from socketio import ASGIApp
 
 from aanmelden.sockets import sio
 
+# Only used in debug/devel mode
 static_files = {
     '/static': './aanmelden/static',
 }
