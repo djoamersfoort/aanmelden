@@ -6,9 +6,10 @@ MAINTAINER Ronald Moesbergen
 COPY requirements.txt /srv/aanmelden/requirements.txt
 
 RUN apk update && \
-    apk add nginx mariadb-dev zlib-dev gcc musl-dev sqlite && \
-    pip3 install --no-cache-dir -r /srv/aanmelden/requirements.txt && \
-    apk del gcc musl-dev
+    apk add --no-cache nginx mariadb-dev zlib-dev gcc musl-dev sqlite build-base && \
+    pip install -U pip setuptools && \
+    pip install --no-cache-dir -r /srv/aanmelden/requirements.txt && \
+    apk --purge del gcc musl-dev build-base
 
 WORKDIR /srv
 RUN mkdir static logs
