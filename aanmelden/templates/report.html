@@ -58,6 +58,9 @@
                                       {% if member.seen and member.seen_by == 'mac' %}
                                         <i class="fa fa-wifi" aria-hidden="true"></i>
                                       {% endif %}
+                                      {% if 'strippenkaart' in member.user.userinfo.account_type %}
+                                        <i class="fa-solid fa-clipboard-list"></i>
+                                      {% endif %}
                                   </label>
                                 </div>
                                 {% endif %}

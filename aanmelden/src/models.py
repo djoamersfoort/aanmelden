@@ -26,6 +26,11 @@ class DjoUser(User):
         types = account_type.split(',')
         return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
 
+    @staticmethod
+    def has_strippenkaart(account_type):
+        types = account_type.split(',')
+        return 'strippenkaart' in types
+
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
 
@@ -33,7 +38,7 @@ class DjoUser(User):
 class UserInfo(models.Model):
     user: DjoUser = models.OneToOneField(User, on_delete=models.CASCADE)
     days = models.IntegerField(default=1, null=False)
-    age = models.IntegerField(default=0, null=False)
+    account_type = models.CharField(max_length=100, default="", null=False)
 
     def __str__(self):
         return f"User details for {self.user.first_name} {self.user.last_name}"

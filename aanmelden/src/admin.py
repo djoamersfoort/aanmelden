@@ -9,7 +9,7 @@ class PresenceAdmin(admin.ModelAdmin):
     list_filter = ('user',)
 
 
-# Define an inline admin descriptor for Employee model
+# Define an inline admin descriptor for User model
 # which acts a bit like a singleton
 class UserInfoInline(admin.StackedInline):
     model = UserInfo

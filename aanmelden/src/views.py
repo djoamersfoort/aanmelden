@@ -61,8 +61,7 @@ class LoginResponseView(View):
             account_type = user_profile['accountType']
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
             found_user.userinfo.days = user_profile['days']
-            if 'age' in user_profile:
-                found_user.userinfo.age = user_profile['age']
+            found_user.userinfo.account_type = account_type
             found_user.save()
             found_user.userinfo.save()
 
