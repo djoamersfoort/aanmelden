@@ -12,6 +12,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import View, ListView, TemplateView
 from django.views.generic.edit import CreateView
 from requests_oauthlib import OAuth2Session
+from typing import Optional
 
 from aanmelden.sockets import sio
 from aanmelden.src.mixins import BegeleiderRequiredMixin, SlotContextMixin
@@ -137,10 +138,13 @@ class DeRegister(LoginRequiredMixin, SlotContextMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         try:
             presence = Presence.objects.get(date=self.slot.date, user=self.request.user, pod=self.slot.pod)
-            if presence:
-                presence.delete()
         except Presence.DoesNotExist:
-            pass
+            return super().get(request, args, kwargs)
+
+        if presence.seen:
+            self.template_name = "already_seen.html"
+        else:
+            presence.delete()
 
         asyncio.run(sio.emit("update_report_page"))
         asyncio.run(sio.emit("update_main_page"))

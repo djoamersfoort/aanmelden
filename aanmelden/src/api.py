@@ -62,7 +62,7 @@ class IsPresentV2(ClientCredentialsRequiredMixin, SlotContextMixin, View):
         userid = self.kwargs.get('userid').strip()
 
         try:
-            Presence.objects.get(date=self.slot.date, pod=self.slot.pod, user__username=userid)
+            Presence.objects.get(date=self.slot.date, pod=self.slot.pod, user__username=userid, seen=True)
         except Presence.DoesNotExist:
             return JsonResponse({'present': False})
         return JsonResponse({'present': True})
@@ -74,6 +74,6 @@ class ArePresentV2(ClientCredentialsRequiredMixin, SlotContextMixin, View):
 
     # Return a list of present user ids (IDP backend ids)
     def post(self, request, *args, **kwargs):
-        presences = Presence.objects.filter(date=self.slot.date, pod=self.slot.pod)
+        presences = Presence.objects.filter(date=self.slot.date, pod=self.slot.pod, seen=True)
         present_members = [presence.user.username for presence in presences]
         return JsonResponse({'members': present_members})
