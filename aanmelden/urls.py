@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/v1/mac_event', api.MacEvent.as_view()),
     path('api/v2/is_present/<str:day>/<str:pod>/<str:userid>', api.IsPresentV2.as_view()),
     path('api/v2/are_present/<str:day>/<str:pod>', api.ArePresentV2.as_view()),
+    path('api/v1/present_since_date/<str:userid>/<int:year>/<int:month>/<int:day>', api.PresentSinceDate.as_view()),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
     path('', views.LoginView.as_view(), name='login'),
 ]

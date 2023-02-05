@@ -77,3 +77,11 @@ class ArePresentV2(ClientCredentialsRequiredMixin, SlotContextMixin, View):
         presences = Presence.objects.filter(date=self.slot.date, pod=self.slot.pod, seen=True)
         present_members = [presence.user.username for presence in presences]
         return JsonResponse({'members': present_members})
+
+
+class PresentSinceDate(View):
+    def get(self, request, *args, **kwargs):
+        userid = kwargs.get('userid')
+        from_date = date(year=kwargs.get('year'), month=kwargs.get('month'), day=kwargs.get('day'))
+        count = Presence.objects.filter(user__username=userid, date__gte=from_date, seen=True).count()
+        return JsonResponse({'count': count})
