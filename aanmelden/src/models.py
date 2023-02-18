@@ -149,7 +149,7 @@ class Presence(models.Model):
                 special_date = None
 
         slots_available = 0
-        if special_date and special_date.free_slots > 0:
+        if special_date and special_date.free_slots >= 0:
             slots_available = special_date.free_slots
             if special_date.closed:
                 slots_available = 0
