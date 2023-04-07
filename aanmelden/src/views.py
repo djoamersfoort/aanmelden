@@ -65,6 +65,10 @@ class LoginResponseView(View):
             if "stripcard_used" in user_profile:
                 found_user.userinfo.stripcard_used = user_profile['stripcard_used']
                 found_user.userinfo.stripcard_count = user_profile['stripcard_count']
+            else:
+                # No active stripcard -> reset counters
+                found_user.userinfo.stripcard_used = 0
+                found_user.userinfo.stripcard_count = 0
             found_user.save()
             found_user.userinfo.save()
 
@@ -101,6 +105,7 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
+            user = request.user
             # Check if any slots are available server side
             if Presence.slots_available(self.slot.date, self.slot.pod) <= 0:
                 return HttpResponseRedirect(reverse('full', kwargs=kwargs))
@@ -112,9 +117,13 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
             else:
                 # Reg for Saturday, check Friday in the same weekend
                 check_date = self.slot.date - timedelta(days=1)
-            reg_count = Presence.objects.filter(date=check_date, user=request.user).count()
-            if reg_count >= request.user.userinfo.days:
+            reg_count = Presence.objects.filter(date=check_date, user=user).count()
+            if reg_count >= user.userinfo.days:
                 return HttpResponseRedirect(reverse('only_once'))
+
+            if DjoUser.has_strippenkaart(user.userinfo.account_type):
+                if user.userinfo.stripcard_used >= user.userinfo.stripcard_count:
+                    return HttpResponseRedirect(reverse('stripcard_full'))
 
         presence = Presence()
         presence.date = self.slot.date
@@ -160,6 +169,10 @@ class Full(LoginRequiredMixin, SlotContextMixin, TemplateView):
 
 class OnlyOnce(LoginRequiredMixin, TemplateView):
     template_name = 'only_once.html'
+
+
+class StripcardFull(LoginRequiredMixin, TemplateView):
+    template_name = 'stripcard_full.html'
 
 
 @method_decorator(never_cache, name='dispatch')

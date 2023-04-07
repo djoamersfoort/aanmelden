@@ -27,6 +27,7 @@ urlpatterns = [
     path('deregister/day/<str:day>/<str:pod>', views.DeRegister.as_view(), name='deregister'),
     path('full/day/<str:day>/<str:pod>', views.Full.as_view(), name='full'),
     path('only_once/', views.OnlyOnce.as_view(), name='only_once'),
+    path('stripcard_full/', views.StripcardFull.as_view(), name='stripcard_full'),
     path('report/', views.Report.as_view(), name='report'),
     path('logoff/', views.LogoffView.as_view(), name='logoff'),
     path('api/v2/free', api.FreeV2.as_view()),
