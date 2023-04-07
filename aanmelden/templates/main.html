@@ -15,14 +15,28 @@
     </div>
 </div>
 
-<div class="container mt-5 text-center">
+<div class="container mb-5 text-center">
+
+    {% if user.userinfo.stripcard_count > 0 %}
+    <div class="row justify-content-sm-center mb-5">
+        <div class="col-sm-auto">
+            <div class="card border-primary p-4">
+                <h5 class="card-title">Jouw strippenkaart</h5>
+                <p class="card-text">
+                <span class="badge badge-primary">{{ user.userinfo.stripcard_used }}</span>
+                keer gebruikt van <span class="badge badge-primary">{{ user.userinfo.stripcard_count }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="row">
         {% for slot in slots %}
 
             {% if not slot.closed %}
             <div class="col-sm">
-                <div class="card border-primary">
+                <div class="card border-primary mb-1">
                     <div class="card-body">
                         <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> {{ slot.description }} </h4></div>
                         <div class="small">{% if slot.is_registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>

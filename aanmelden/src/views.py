@@ -12,7 +12,6 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import View, ListView, TemplateView
 from django.views.generic.edit import CreateView
 from requests_oauthlib import OAuth2Session
-from typing import Optional
 
 from aanmelden.sockets import sio
 from aanmelden.src.mixins import BegeleiderRequiredMixin, SlotContextMixin
@@ -63,6 +62,9 @@ class LoginResponseView(View):
             found_user.is_superuser = DjoUser.is_begeleider(account_type)
             found_user.userinfo.days = user_profile['days']
             found_user.userinfo.account_type = account_type
+            if "stripcard_used" in user_profile:
+                found_user.userinfo.stripcard_used = user_profile['stripcard_used']
+                found_user.userinfo.stripcard_count = user_profile['stripcard_count']
             found_user.save()
             found_user.userinfo.save()
 

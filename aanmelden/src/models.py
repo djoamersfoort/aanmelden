@@ -39,6 +39,8 @@ class UserInfo(models.Model):
     user: DjoUser = models.OneToOneField(User, on_delete=models.CASCADE)
     days = models.IntegerField(default=1, null=False)
     account_type = models.CharField(max_length=100, default="", null=False)
+    stripcard_used = models.IntegerField(default=0, null=False)
+    stripcard_count = models.IntegerField(default=0, null=False)
 
     def __str__(self):
         return f"User details for {self.user.first_name} {self.user.last_name}"
