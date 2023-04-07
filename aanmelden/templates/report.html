@@ -60,6 +60,7 @@
                                       {% endif %}
                                       {% if 'strippenkaart' in member.user.userinfo.account_type %}
                                         <i class="fa-solid fa-clipboard-list"></i>
+                                          {{ member.user.userinfo.stripcard_used }} / {{ member.user.userinfo.stripcard_count }}
                                       {% endif %}
                                   </label>
                                 </div>
