@@ -11,3 +11,22 @@
     margin: 1rem auto;
     text-align: left;
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: #fff;
+        background: #22222c;
+    }
+    .jumbotron, .card {
+        background: #303039;
+    }
+    a, a:hover {
+        color: #b889ff;
+    }
+    .text-primary {
+        color: #b889ff !important;
+    }
+    .btn-link, .btn-link:hover {
+        color: #fff;
+    }
+}
