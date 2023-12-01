@@ -40,7 +40,7 @@ class LoginResponseView(View):
                                              client_secret=settings.IDP_CLIENT_SECRET)
         except Exception as e:
             # Something went wrong getting the token
-            return HttpResponseForbidden('Geen toegang: {0}'.format(e))
+            return HttpResponseForbidden(f'Geen toegang: {str(e)}')
 
         if 'access_token' in access_token and access_token['access_token'] != '':
             user_profile = oauth.get(settings.IDP_API_URL).json()
