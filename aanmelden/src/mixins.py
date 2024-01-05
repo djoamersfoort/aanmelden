@@ -6,8 +6,8 @@ from django.http.response import HttpResponseForbidden, HttpResponseNotFound
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
-from .models import Slot, DjoUser
-from .utils import get_access_token, get_openid_configuration, get_jwks_client
+from aanmelden.src.models import Slot, DjoUser
+from aanmelden.src.utils import get_access_token, get_openid_configuration, get_jwks_client
 
 
 class BegeleiderRequiredMixin(UserPassesTestMixin):
@@ -100,29 +100,29 @@ class AuthenticatedMixin:
         jwks_client = get_jwks_client()
 
         signing_key = jwks_client.get_signing_key_from_jwt(token)
-        data = jwt.decode(
+        decoded_jwt = jwt.decode(
             token,
             key=signing_key.key,
             algorithms=openid_configuration['id_token_signing_alg_values_supported'],
             options={'verify_aud': False}
         )
-        if not data['aanmelden']:
+        if not decoded_jwt['aanmelden']:
             return HttpResponseForbidden()
 
-        username = f"idp-{data['sub']}"
+        username = f"idp-{decoded_jwt['sub']}"
         try:
             user = DjoUser.objects.get(username=username)
         except DjoUser.DoesNotExist:
             user = DjoUser(username=username)
             user.set_unusable_password()
 
-        user.email = data['email']
-        user.first_name = data['given_name']
-        user.last_name = data['family_name']
-        user.is_superuser = user.is_begeleider(data['account_type'])
-        user.userinfo.days = data['days']
-        user.userinfo.account_type = data['account_type']
-        if data['stripcard'] is not None:
+        user.email = decoded_jwt['email']
+        user.first_name = decoded_jwt['given_name']
+        user.last_name = decoded_jwt['family_name']
+        user.is_superuser = user.is_begeleider(decoded_jwt['account_type'])
+        user.userinfo.days = decoded_jwt['days']
+        user.userinfo.account_type = decoded_jwt['account_type']
+        if decoded_jwt['stripcard'] is not None:
             user.userinfo.stripcard_used = user['stripcard']['used']
             user.userinfo.stripcard_count = user['stripcard']['count']
         else:

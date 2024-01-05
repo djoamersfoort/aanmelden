@@ -1,16 +1,14 @@
 import asyncio
 from datetime import timedelta
+from functools import lru_cache
 
 import requests
+from django.conf import settings
 from django.db import IntegrityError
 from jwt import PyJWKClient
 
-from aanmelden import settings
 from aanmelden.sockets import sio
-from .models import Presence, DjoUser
-
-openid_configuration = None
-jwks_client = None
+from aanmelden.src.models import Presence, DjoUser
 
 
 class RegisterException(Exception):
@@ -89,21 +87,14 @@ def deregister(slot, user):
     asyncio.run(sio.emit("update_main_page"))
 
 
-
+@lru_cache()
 def get_openid_configuration():
-    global openid_configuration
-    if openid_configuration is None:
-        openid_configuration = requests.get(settings.OPENID_CONFIGURATION).json()
-
-    return openid_configuration
+    return requests.get(settings.OPENID_CONFIGURATION, timeout=10).json()
 
 
+@lru_cache()
 def get_jwks_client():
-    global jwks_client
-    if jwks_client is None:
-        jwks_client = PyJWKClient(uri=get_openid_configuration()['jwks_uri'])
-
-    return jwks_client
+    return PyJWKClient(uri=get_openid_configuration()['jwks_uri'])
 
 
 def get_access_token(request) -> (str, None):

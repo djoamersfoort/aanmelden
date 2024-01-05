@@ -127,6 +127,7 @@ IDP_API_SCOPES = ['user/basic', 'user/names', 'user/email']
 INTROSPECTION_CLIENT_ID = '<client id>'
 INTROSPECTION_CLIENT_SECRET = '<client secret>'
 IDP_INTROSPECTION_URL = 'https://leden.djoamersfoort.nl/o/introspect/'
+OPENID_CONFIGURATION = 'https://leden.djoamersfoort.nl/o/.well-known/openid-configuration/'
 # Corvee is allowed to call the 'presence' API
 API_CLIENT_WHITELIST = ['xxxxxxx']
 
