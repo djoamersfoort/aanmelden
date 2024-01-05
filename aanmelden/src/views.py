@@ -1,5 +1,4 @@
 import asyncio
-from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import logout, login as auth_login
@@ -16,6 +15,8 @@ from requests_oauthlib import OAuth2Session
 from aanmelden.sockets import sio
 from aanmelden.src.mixins import BegeleiderRequiredMixin, SlotContextMixin
 from aanmelden.src.models import Presence, DjoUser, UserInfo, Slot
+from aanmelden.src.utils import (register, deregister, NotEnoughSlotsException, TooManyDaysException,
+                                 StripcardLimitReachedException, AlreadySeenException)
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -104,42 +105,16 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
     template_name = 'registered.html'
 
     def get(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            user = request.user
-            # Check if any slots are available server side
-            if Presence.slots_available(self.slot.date, self.slot.pod) <= 0:
-                return HttpResponseRedirect(reverse('full', kwargs=kwargs))
-
-            # Check if allowed to register for the number of days
-            if self.slot.name == 'fri':
-                # Reg for Friday, check saturday in the same weekend
-                check_date = self.slot.date + timedelta(days=1)
-            else:
-                # Reg for Saturday, check Friday in the same weekend
-                check_date = self.slot.date - timedelta(days=1)
-            reg_count = Presence.objects.filter(date=check_date, user=user).count()
-            if reg_count >= user.userinfo.days:
-                return HttpResponseRedirect(reverse('only_once'))
-
-            if DjoUser.has_strippenkaart(user.userinfo.account_type):
-                if user.userinfo.stripcard_used >= user.userinfo.stripcard_count:
-                    return HttpResponseRedirect(reverse('stripcard_full'))
-
-        presence = Presence()
-        presence.date = self.slot.date
-        presence.pod = self.slot.pod
-        presence.user = request.user
-
         try:
-            presence.save()
-        except IntegrityError as e:
-            # Already registered -> ignore
-            pass
+            register(self.slot, request.user)
+        except NotEnoughSlotsException:
+            return HttpResponseRedirect(reverse('full', kwargs=kwargs))
+        except TooManyDaysException:
+            return HttpResponseRedirect(reverse('only_once'))
+        except StripcardLimitReachedException:
+            return HttpResponseRedirect(reverse('stripcard_full'))
 
-        asyncio.run(sio.emit("update_report_page"))
-        asyncio.run(sio.emit("update_main_page"))
-
-        return super().get(request, args, kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -148,17 +123,9 @@ class DeRegister(LoginRequiredMixin, SlotContextMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         try:
-            presence = Presence.objects.get(date=self.slot.date, user=self.request.user, pod=self.slot.pod)
-        except Presence.DoesNotExist:
-            return super().get(request, args, kwargs)
-
-        if presence.seen:
+            deregister(self.slot, self.request.user)
+        except AlreadySeenException:
             self.template_name = "already_seen.html"
-        else:
-            presence.delete()
-
-        asyncio.run(sio.emit("update_report_page"))
-        asyncio.run(sio.emit("update_main_page"))
 
         return super().get(request, args, kwargs)
 

@@ -6,8 +6,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin
+from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin, AuthenticatedMixin
 from .models import Presence, MacAddress, Slot
+from .utils import register, deregister, NotEnoughSlotsException, TooManyDaysException, StripcardLimitReachedException, AlreadySeenException
 
 
 class FreeV2(View):
@@ -85,3 +86,33 @@ class PresentSinceDate(View):
         from_date = date(year=kwargs.get('year'), month=kwargs.get('month'), day=kwargs.get('day'))
         count = Presence.objects.filter(user__username=userid, date__gte=from_date, seen=True).count()
         return JsonResponse({'count': count})
+
+
+class Slots(AuthenticatedMixin, View):
+    def get(self, request):
+        return JsonResponse({'slots': Slot.get_enabled_slots(request.user)})
+
+
+class Register(AuthenticatedMixin, SlotContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            register(self.slot, request.user)
+        except NotEnoughSlotsException:
+            return JsonResponse({'error': 'Not enough slots available'}, status=400)
+        except TooManyDaysException:
+            return JsonResponse({'error': 'Henk!'}, status=400)
+        except StripcardLimitReachedException:
+            return JsonResponse({'error': 'You have reached the limit on your strip card'}, status=400)
+
+        return JsonResponse({"error": None})
+
+
+class DeRegister(AuthenticatedMixin, SlotContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            deregister(self.slot, request.user)
+        except AlreadySeenException:
+            return JsonResponse({'error': 'Je bent al aanwezig'})
+
+        return JsonResponse({'error': None})
+
