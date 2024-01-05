@@ -1,10 +1,13 @@
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http.response import HttpResponseForbidden, HttpResponseNotFound
+import jwt
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
-from requests_oauthlib import OAuth2Session
+from django.http.response import HttpResponseForbidden, HttpResponseNotFound
 from oauthlib.oauth2 import BackendApplicationClient
-from .models import Slot
+from requests_oauthlib import OAuth2Session
+
+from .models import Slot, DjoUser
+from .utils import get_access_token, get_openid_configuration, get_jwks_client
 
 
 class BegeleiderRequiredMixin(UserPassesTestMixin):
@@ -15,17 +18,6 @@ class BegeleiderRequiredMixin(UserPassesTestMixin):
 
 class ClientCredentialsRequiredMixin:
     whitelisted_client_ids = []
-
-    @staticmethod
-    def get_access_token(request) -> (str, None):
-        token = request.GET.get('access_token', '').strip()
-        if token == "":
-            parts = request.headers.get('authorization', '').split()
-            if len(parts) == 2 and parts[0].lower() == 'bearer':
-                token = parts[1]
-        if token == "":
-            return None
-        return token
 
     def validate_client_token(self, client_token) -> bool:
         # Get a token with introspection scope
@@ -60,7 +52,7 @@ class ClientCredentialsRequiredMixin:
         return False
 
     def dispatch(self, request, *args, **kwargs):
-        client_access_token = self.get_access_token(request)
+        client_access_token = get_access_token(request)
         if not client_access_token:
             return HttpResponseForbidden()
 
@@ -94,5 +86,52 @@ class SlotContextMixin:
 
         if not self.slot:
             return HttpResponseNotFound("Slot with the specified parameters does not exist!")
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AuthenticatedMixin:
+    def dispatch(self, request, *args, **kwargs):
+        token = get_access_token(request)
+        if not token:
+            return HttpResponseForbidden()
+
+        openid_configuration = get_openid_configuration()
+        jwks_client = get_jwks_client()
+
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        data = jwt.decode(
+            token,
+            key=signing_key.key,
+            algorithms=openid_configuration['id_token_signing_alg_values_supported'],
+            options={'verify_aud': False}
+        )
+        if not data['aanmelden']:
+            return HttpResponseForbidden()
+
+        username = f"idp-{data['sub']}"
+        try:
+            user = DjoUser.objects.get(username=username)
+        except DjoUser.DoesNotExist:
+            user = DjoUser(username=username)
+            user.set_unusable_password()
+
+        user.email = data['email']
+        user.first_name = data['given_name']
+        user.last_name = data['family_name']
+        user.is_superuser = user.is_begeleider(data['account_type'])
+        user.userinfo.days = data['days']
+        user.userinfo.account_type = data['account_type']
+        if data['stripcard'] is not None:
+            user.userinfo.stripcard_used = user['stripcard']['used']
+            user.userinfo.stripcard_count = user['stripcard']['count']
+        else:
+            # No active stripcard -> reset counters
+            user.userinfo.stripcard_used = 0
+            user.userinfo.stripcard_count = 0
+
+        user.save()
+
+        request.user = user
 
         return super().dispatch(request, *args, **kwargs)
