@@ -100,7 +100,7 @@ class Register(AuthenticatedMixin, SlotContextMixin, View):
         except NotEnoughSlotsException:
             return JsonResponse({'error': 'Not enough slots available'}, status=400)
         except TooManyDaysException:
-            return JsonResponse({'error': 'Henk!'}, status=400)
+            return JsonResponse({'error': 'You can only register for one day'}, status=400)
         except StripcardLimitReachedException:
             return JsonResponse({'error': 'You have reached the limit on your strip card'}, status=400)
 
