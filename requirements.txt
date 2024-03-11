@@ -3,7 +3,7 @@ django-mathfilters==1.0.0
 django-widget-tweaks==1.5.0
 uvicorn[standard]==0.28.0
 oauthlib==3.2.2
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
 requests==2.31.0
 requests-oauthlib==1.3.1
 python-socketio==5.11.1
