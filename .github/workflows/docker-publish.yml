@@ -38,7 +38,7 @@ jobs:
           curl https://portainer.djoamersfoort.nl/hooks/update-docker-image?stack=aanmelden_djoamersfoort_nl -H "X-Token: ${{ secrets.WEBHOOK_TOKEN }}"
       
       - name: Clean up old images
-        uses: actions/delete-package-versions@v4
+        uses: actions/delete-package-versions@v5
         with:
           package-name: 'aanmelden/aanmelden'
           package-type: 'container'
