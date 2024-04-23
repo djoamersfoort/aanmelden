@@ -1,0 +1,23 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container text-center">
+    <div class="p-5 mb-4 d-inline-block bg-body-tertiary rounded-3 text-center mt-5 mb-2">
+        <iconify-icon
+            icon="{% block icon %}{% endblock %}"
+            width="5rem" height="5rem"
+            class="text-primary mb-5"
+            aria-hidden="true"
+        ></iconify-icon>
+        <h3 class="fw-bold">{% block title %}{% endblock %}</h3>
+        <div class="lead">{% block description %}{% endblock %}</div>
+    </div>
+    <a
+        href="{% if user.is_superuser %}{% url 'report' %}{% else %}{% url 'main' %}{% endif %}"
+        class="link-primary link-underline-opacity-0 d-block lead mb-5"
+    >
+        <iconify-icon icon="line-md:arrow-left" inline aria-hidden="true"></iconify-icon>
+        terug naar de homepage
+    </a>
+</div>
+{% endblock %}

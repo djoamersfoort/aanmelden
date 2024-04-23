@@ -1,32 +1,13 @@
-.navbar-brand img {
-    height: 45px;
+:root[data-toggling=true] * {
+    transition: all 1s !important;
 }
 
-.h-title {
-    font-size: 1.6rem;
+iconify-icon {
+    display: inline-block;
 }
-
-.h-title ul {
-    width: fit-content;
-    margin: 1rem auto;
-    text-align: left;
+iconify-icon:not([width]) {
+    width: 1em;
 }
-
-@media (prefers-color-scheme: dark) {
-    body {
-        color: #fff;
-        background: #22222c;
-    }
-    .jumbotron, .card {
-        background: #303039;
-    }
-    a, a:hover {
-        color: #b889ff;
-    }
-    .text-primary {
-        color: #b889ff !important;
-    }
-    .btn-link, .btn-link:hover {
-        color: #fff;
-    }
+iconify-icon:not([height]) {
+    height: 1em;
 }

@@ -1,90 +1,146 @@
-{% extends 'base.html' %}
+{% extends 'base/base_main.html' %}
 {% load mathfilters %}
 {% load static %}
 
-{% block extra_head_content %}
-    {{ block.super }}
-    <script src="{% static 'js/report.js' %}" charset="utf-8"></script>
+{% block head %}
+{{ block.super }}
+<script src="{% static 'js/report.js' %}"></script>
 {% endblock %}
 
+{% block description %}
+Een overzicht van leden voor de aankomende vrijdag en zaterdag.
+{% endblock %}
 
 {% block content %}
-
-<div class="jumbotron text-center">
-    <div class="container">
-    <h1 class="display-4">Hallo {{ request.user.first_name }}!</h1>
-    <p class="lead">Een overzicht van leden voor de aankomende vrijdag en zaterdag.</p>
-    </div>
-</div>
-<div class="container mb-5">
+{{ block.super }}
+<div class="container text-center">
     <div class="row">
         {% for slot in slots %}
-
-            {% if not slot.closed %}
-
-            <div class="col-sm">
-                <div class="card border-primary">
-                    <div class="card-body">
-                        <h4 class="card-title text-center"><i class="far fa-calendar-alt"></i> {{ slot.description }}</h4>
-                        <div class="small text-center">{{ slot.date }}</div>
-                        {% if slot.announcement %}
-                        <div class="card-text alert alert-primary">{{ slot.announcement | safe }}</div>
-                        {% endif %}
-                        <div class="text-center">
-                            <p>Slots beschikbaar:
-                                {% if slot.available == 0 %}
-                                <span class="badge badge-warning">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
-                                {% elif slot.available < 0 %}
-                                <span class="badge badge-danger">0 / {{ slot.available|add:slot.taken }}, {{ slot.available|abs }} te veel</span>
-                                {% else %}
-                                <span class="badge badge-primary">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
-                                {% endif %}
-                                <br>Begeleiders: <span class="badge badge-primary">{{ slot.tutor_count }}</span>
-                            </p>
-                        </div>
-                        <p class="card-text">
-                        {% for member in object_list %}
-                            {% if member.date == slot.date and member.pod == slot.pod %}
-
-                                {% if member.user.is_superuser %}
-                                <div class="form-check">
-                                    <i class="fas fa-user-tie form-check-input"></i> {{ member.user.first_name }} {{ member.user.last_name }}
-                                </div>
-                                {% else %}
-                                <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" value="" id="{{ member.id }}" {{ member.seen|yesno:"checked,," }}>
-                                  <label class="form-check-label" for="{{ member.id }}">
-                                    {{ member.user.first_name }} {{ member.user.last_name }}
-                                      {% if member.seen and member.seen_by == 'mac' %}
-                                        <i class="fa fa-wifi" aria-hidden="true"></i>
-                                      {% endif %}
-                                      {% if 'strippenkaart' in member.user.userinfo.account_type %}
-                                        <i class="fa-solid fa-clipboard-list"></i>
-                                          {{ member.user.userinfo.stripcard_used }} / {{ member.user.userinfo.stripcard_count }}
-                                      {% endif %}
-                                  </label>
-                                </div>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                        </p>
-                    </div>
-                    <div class="card-footer p-0">
-                        <a class="btn btn-primary btn-block register" href="{% url 'register-manual' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Lid Handmatig Aanmelden</a>
-                    </div>
-                    <div class="card-footer p-0 mt-2">
-                        {% if not slot.is_registered %}
-                          <a class="btn btn-primary btn-block register" href="{% url 'register' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden als begeleider</a>
+        {% if not slot.closed %}
+        <div class="col-md">
+            <div class="card mb-3 {% if slot.is_registered %}border-primary{% endif %}">
+                <!-- header status texts -->
+                <div class="card-header py-2 small {% if slot.is_registered %}text-primary{% endif %}">
+                    {% if slot.is_registered %}
+                    <span>
+                        <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
+                        Aangemeld
+                    </span>
+                    {% endif %}
+                    {% if slot.announcement %}
+                    <span class="fw-bold text-primary">
+                        <iconify-icon icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
+                        {{ slot.announcement | safe }}
+                    </span>
+                    {% endif %}
+                    {% if not slot.announcement or not slot.is_registered %}
+                    <span class="ms-1">
+                        <iconify-icon icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
+                        {{ slot.date }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <!-- slot description -->
+                    <h5 class="card-title mt-2 fw-bold">
+                        {% if slot.is_registered %}
+                        <iconify-icon icon="line-md:confirm-circle" inline aria-hidden="true"></iconify-icon>
                         {% else %}
-                          <a class="btn btn-link btn-block register" href="{% url 'deregister' slot.name slot.pod %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden als begeleider</a>
+                        <iconify-icon icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
+                        {% endif %}
+                        {{ slot.description }}
+                    </h5>
+                    
+                    <!-- available spots -->
+                    <div class="card-text mb-4">
+                        <div>
+                            Er {{ slot.available|pluralize:"is,zijn" }}
+                            {% if slot.available == 0 %}
+                            <span class="badge text-bg-warning">0 / {{ slot.available|add:slot.taken }}</span>
+                            {% elif slot.available < 0 %}
+                            <span class="badge text-bg-danger">0 / {{ slot.available|add:slot.taken }}</span>
+                            {% else %}
+                            <span class="badge text-bg-primary">{{ slot.available }} / {{ slot.available|add:slot.taken }}</span>
+                            {% endif %}
+                            slot{{ slot.available|pluralize}}
+                            {% if slot.available < 0 %}
+                            beschikbaar, <strong class="text-danger">{{ slot.available|abs }} te veel</strong>.
+                            {% else %}
+                            beschikbaar.
+                            {% endif %}
+                        </div>
+                        <div>
+                            Er {{ slot.tutor_count|pluralize:"is,zijn" }}
+                            <span class="badge text-bg-primary">{{ slot.tutor_count }}</span>
+                            begeleider{{ slot.tutor_count|pluralize}} aangemeld.
+                        </div>
+                    </div>
+
+                    <!-- list of people -->
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="text-start">
+                            {% for member in object_list %}
+                            {% if member.date == slot.date and member.pod == slot.pod %}
+                            {% if member.user.is_superuser %}
+                            <div>
+                                <iconify-icon icon="line-md:account" class="text-primary" inline role="img" alt="begeleider:"></iconify-icon>
+                                {{ member.user.first_name }} {{ member.user.last_name }}
+                            </div>
+                            {% else %}
+                            <div class="form-check">
+                                <input
+                                    type="checkbox"
+                                    autocomplete="off"
+                                    class="form-check-input"
+                                    id="{{ member.id }}"
+                                    data-request-url="{% url 'seen' member.id '::' %}"
+                                    {% if member.seen %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="{{ member.id }}">
+                                    {{ member.user.first_name }} {{ member.user.last_name }}
+                                    {% if 'strippenkaart' in member.user.userinfo.account_type %}
+                                    <span class="text-primary ms-1">
+                                        <iconify-icon icon="line-md:check-list-3" inline role="img" alt="strippenkaart"></iconify-icon>
+                                        {{ member.user.userinfo.stripcard_used }} / {{ member.user.userinfo.stripcard_count }}
+                                    </span>
+                                    {% endif %}
+                                    {% if member.seen and member.seen_by == 'mac' %}
+                                    <span class="text-primary ms-1">
+                                        <iconify-icon icon="line-md:cloud" inline role="img" alt="aangemeld via MAC adres"></iconify-icon>
+                                    </span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- register buttons -->
+                    <div>
+                        <a class="btn btn-primary me-2" href="{% url 'register-manual' slot.name slot.pod %}">
+                            <iconify-icon icon="line-md:person-add" inline aria-hidden="true"></iconify-icon>
+                            Lid Aanmelden
+                        </a>
+                        
+                        {% if slot.is_registered %}                  
+                        <a class="btn btn-outline-primary" href="{% url 'deregister' slot.name slot.pod %}">
+                            <iconify-icon icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
+                            Afmelden
+                        </a>
+                        {% else %}
+                        <a class="btn btn-primary" href="{% url 'register' slot.name slot.pod %}">
+                            <iconify-icon icon="line-md:login" inline aria-hidden="true"></iconify-icon>
+                            Aanmelden
+                        </a>
                         {% endif %}
                     </div>
                 </div>
             </div>
-
-            {% endif %}
+        </div>
+        {% endif %}
         {% endfor %}
-
     </div>
 </div>
 

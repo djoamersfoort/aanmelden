@@ -1,20 +1,14 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base/base_status.html' %}
 
-{% block content %}
-
-<div class="container text-center">
-    <div class="jumbotron mt-md-5 mt-3">
-        <i class="fas fa-calendar-times fa-5x mt-3 text-primary"></i>
-        <div class="mt-2 h-title">Oei, je strippenkaart is vol! Je kunt je nu niet aanmelden. Je kunt:
-            <ul>
-                <li>Een nieuwe strippenkaart kopen;</li>
-                <li>Je lidmaatschap omzetten naar een regulier lidmaatschap.</li>
-            </ul>
-            Stuur een e-mail naar info@djoamersfoort.nl om dit te regelen.
-        </div>
-        <div class="lead">Terug naar de <a href="{% url 'main' %}">homepage</a>.</div>
-    </div>
+{% block icon %}line-md:clipboard-arrow-twotone{% endblock %}
+{% block title %}Je strippenkaart is vol!{% endblock %}
+{% block description %}
+<div class="text-start">
+    Je kunt je nu niet aanmelden. Je kan wel:
+    <ul class="my-2">
+        <li>Een nieuwe strippenkaart kopen</li>
+        <li>Naar een regulier lidmaatschap omzetten</li>
+    </ul>
+    Stuur ons hiervoor <a href="info@djoamersfoort.nl">een email</a>.
 </div>
-
 {% endblock %}

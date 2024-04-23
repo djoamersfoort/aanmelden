@@ -1,14 +1,5 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base/base_status.html' %}
 
-{% block content %}
-
-<div class="container text-center">
-    <div class="jumbotron mt-md-5 mt-3">
-        <i class="fas fa-calendar-times fa-5x mt-3 text-primary"></i>
-        <div class="mt-2 h-title">Oei, je bent al aanwezig gemeld voor {{ slot.description }}! Je kunt je dus niet meer afmelden.</div>
-        <div class="lead">Terug naar de <a href="{% url 'main' %}">homepage</a>.</div>
-    </div>
-</div>
-
-{% endblock %}
+{% block icon %}line-md:watch-twotone{% endblock %}
+{% block title %}Je bent al aanwezig gemeld!{% endblock %}
+{% block description %}Je kunt je dus niet meer afmelden...{% endblock %}

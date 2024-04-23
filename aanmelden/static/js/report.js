@@ -1,18 +1,19 @@
-// script for report page
+const socket = io()
+let skipReload = false
 
-$(document).ready(function() {
-    let skipReload = false;
+socket.on('update_report_page', () => {
+    if(skipReload) {
+        skipReload = false
+        return
+    }
+    location.reload()
+})
 
-    $("input").click(function(e) {
-        let url = '/register/seen/' + $(this).attr('id') + '/' + $(this).is(":checked");
-        skipReload = true;
-        fetch(url, { method: 'GET' })
-            .catch(errorMsg => { console.log(errorMsg); });
-    });
+document.addEventListener('input', (event) => {
+    let url = event.target.dataset.requestUrl
+    if(!url) return
 
-    const socket = io();
-    socket.on('update_report_page', () => {
-        if (!skipReload) location.reload();
-        skipReload = false;
-    });
-});
+    skipReload = true
+    url = url.replace('::', event.target.checked)
+    fetch(url)
+})
