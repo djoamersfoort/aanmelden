@@ -1,4 +1,11 @@
 {% extends 'base/base_status.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script src="{% static 'js/confetti.js' %}"></script>
+{% endblock %}
 
 {% block icon %}line-md:confirm-circle-twotone{% endblock %}
 {% block title %}Je hebt je aangemeld!{% endblock %}
