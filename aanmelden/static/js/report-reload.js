@@ -17,3 +17,5 @@ document.addEventListener('input', (event) => {
     url = url.replace('::', event.target.checked)
     fetch(url)
 })
+
+window.addEventListener('beforeunload', () => socket.disconnect())
