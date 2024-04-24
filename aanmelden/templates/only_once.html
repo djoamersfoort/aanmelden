@@ -1,19 +1,10 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base/base_status.html' %}
 
-{% block content %}
-
-<div class="container text-center">
-    <div class="jumbotron mt-md-5 mt-3">
-        <i class="fas fa-calendar-times fa-5x mt-3 text-primary"></i>
-        <div class="mt-2 h-title">Oei, je hebt je al aangemeld voor een andere dag in hetzelfde weekend! Wil je:
-            <ul>
-                <li>van dag wisselen? Meld je dan eerst af voordat je jezelf voor de andere dag aanmeldt;</li>
-                <li>toch op beide dagen komen? Vraag dan een <a href="https://www.djoamersfoort.nl/organisatie/bestuur/">bestuurslid</a> om toestemming.</li>
-            </ul>
-        </div>
-        <div class="lead">Terug naar de <a href="{% url 'main' %}">homepage</a>.</div>
-    </div>
-</div>
-
+{% block icon %}line-md:calendar{% endblock %}
+{% block title %}Je hebt je dit weekend al aangemeld!{% endblock %}
+{% block description %}
+<ul class="text-start">
+    <li><u>Van dag wisselen?</u> Meld je bij de andere dag eerst af.</li>
+    <li><u>Op beide dagen komen?</u> Vraag dan een <a href="https://www.djoamersfoort.nl/organisatie/bestuur/" target="_blank" class="link-primary">bestuurslid</a> om toestemming.</li>
+</ul>
 {% endblock %}

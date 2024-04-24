@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aanmelden | DJO Amersfoort</title>
+    
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/djo.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <script src="{% static 'js/cdn/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/cdn/socket.io.min.js' %}"></script>
+    <script src="{% static 'js/cdn/iconify-icon.min.js' %}"></script>
+    <script src="{% static 'js/theme-toggle.js' %}"></script>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-secondary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'main' %}">
+                <img class="d-inline-block align-middle" src="{% static 'img/logo.png' %}" alt="DJO Logo" width="38">
+                <span class="ms-1 fw-bold">Aanmelden</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>          
+
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'main' %}active{% endif %}" href="{% url 'main' %}">
+                            <iconify-icon icon="line-md:home-md" inline aria-hidden="true"></iconify-icon>
+                            Home
+                        </a>
+                    </li>
+                    {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'report' %}active{% endif %}" href="{% url 'report' %}">
+                            <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
+                            Report
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/">
+                            <iconify-icon icon="line-md:cog" inline aria-hidden="true"></iconify-icon>
+                            Admin
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logoff' %}">
+                            <iconify-icon icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
+                            Uitloggen
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" id="theme-toggle" role="button">
+                            <iconify-icon inline aria-hidden="true"></iconify-icon>
+                            Theme
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

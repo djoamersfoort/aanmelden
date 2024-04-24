@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-body-tertiary rounded-3 text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">
+            Hallo {{ user.first_name }}
+            <iconify-icon icon="line-md:emoji-smile-twotone" inline class="text-primary" aria-hidden="true"></iconify-icon>
+        </h1>
+        <div class="lead">{% block description %}{% endblock %}</div>
+    </div>
+</div>
+{% endblock %}

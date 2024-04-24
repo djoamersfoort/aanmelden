@@ -1,29 +1,25 @@
-{% extends 'base.html' %}
+{% extends 'base/base_status.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
+{% block icon %}line-md:person-add-twotone{% endblock %}
+{% block title %}Gebruiker Handmatig Aanmelden{% endblock %}
+{% block description %}{{ slot.description }}{% endblock %}
+
 {% block content %}
-
-<div class="jumbotron text-center">
-    <div class="container">
-        <h1 class="display-4">Hallo {{ user.first_name }}!</h1>
-        <p class="lead">Als begeleider kun je hier een lid of gast handmatig aanmelden voor {{ slot.description }}</p>
-        <hr class="my-4">
-    </div>
-</div>
-
+{{ block.super }}
 <form method="post">
-    <div class="container">
-        <div class="form-row justify-content-center">
-            <div class="form-group col-md-4">
-                {% csrf_token %}
-
+    <div class="container d-flex justify-content-center">
+        <div class="form-group w-100 max-w-md">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label" for="id_user">Gebruiker</label>
                 {% render_field form.user title="Lid" class+="form-control" %}
-
-                <input class="btn btn-primary btn-block" type="submit" value="Aanmelden">
             </div>
+
+            <input class="btn btn-primary w-100" type="submit" value="Aanmelden">
         </div>
     </div>
 </form>
-
 {% endblock %}

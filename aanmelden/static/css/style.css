@@ -1,32 +1,21 @@
-.navbar-brand img {
-    height: 45px;
+body {
+    min-height: 100vh;
 }
 
-.h-title {
-    font-size: 1.6rem;
+:root[data-toggling=true] * {
+    transition: all 1s !important;
 }
 
-.h-title ul {
-    width: fit-content;
-    margin: 1rem auto;
-    text-align: left;
+.max-w-md {
+    max-width: 24rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    body {
-        color: #fff;
-        background: #22222c;
-    }
-    .jumbotron, .card {
-        background: #303039;
-    }
-    a, a:hover {
-        color: #b889ff;
-    }
-    .text-primary {
-        color: #b889ff !important;
-    }
-    .btn-link, .btn-link:hover {
-        color: #fff;
-    }
+iconify-icon {
+    display: inline-block;
+}
+iconify-icon:not([width]) {
+    width: 1em;
+}
+iconify-icon:not([height]) {
+    height: 1em;
 }

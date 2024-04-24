@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
+from django.conf import settings
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from .src import views
 from .src import api
 
@@ -41,3 +43,6 @@ urlpatterns = [
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
     path('', views.LoginView.as_view(), name='login'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += staticfiles_urlpatterns()

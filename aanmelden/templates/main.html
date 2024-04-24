@@ -1,69 +1,111 @@
-{% extends 'base.html' %}
+{% extends 'base/base_main.html' %}
 {% load static %}
 
-{% block extra_head_content %}
-    {{ block.super }}
-    <script src="{% static 'js/main.js' %}" charset="utf-8"></script>
+{% block head %}
+{{ block.super }}
+<script src="{% static 'js/main-reload.js' %}"></script>
+{% endblock %}
+
+{% block description %}
+Je kunt je hier aanmelden voor DJO voor aankomend weekend.
 {% endblock %}
 
 {% block content %}
-
-<div class="jumbotron text-center">
-    <div class="container">
-        <h1 class="display-4">Hallo {{ user.first_name }}!</h1>
-        <p class="lead">Je kunt je hier aanmelden voor DJO voor aankomend weekend</p>
-    </div>
-</div>
-
-<div class="container mb-5 text-center">
-
+{{ block.super }}
+<div class="container text-center">
     {% if user.userinfo.stripcard_count > 0 %}
-    <div class="row justify-content-sm-center mb-5">
-        <div class="col-sm-auto">
-            <div class="card border-primary p-4">
-                <h5 class="card-title"><i class="fa-solid fa-clipboard-list"></i> Jouw strippenkaart</h5>
-                <p class="card-text">
-                <span class="badge badge-primary">{{ user.userinfo.stripcard_used }}</span>
-                keer gebruikt van <span class="badge badge-primary">{{ user.userinfo.stripcard_count }}</span>
-                </p>
-            </div>
-        </div>
+    <div class="alert alert-primary mb-4">
+        <iconify-icon icon="line-md:confirm-circle" inline aria-hidden="true"></iconify-icon>
+        Je strippenkaart is
+        <strong>{{ user.userinfo.stripcard_used }}</strong>
+        van de
+        <strong>{{ user.userinfo.stripcard_count }}</strong>
+        keer gebruikt.
     </div>
     {% endif %}
-
+    
     <div class="row">
         {% for slot in slots %}
+        {% if not slot.closed %}
+        <div class="col-md">
+            <div class="card mb-3 {% if slot.is_registered %}border-primary text-primary{% endif %}">
+                <!-- header status texts -->
+                <div class="card-header py-2 small">
+                    {% if slot.is_registered %}
+                    <span>
+                        <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
+                        Aangemeld
+                    </span>
+                    {% endif %}
+                    {% if slot.announcement %}
+                    <span class="fw-bold text-primary">
+                        <iconify-icon icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
+                        {{ slot.announcement | safe }}
+                    </span>
+                    {% endif %}
+                    {% if not slot.announcement or not slot.is_registered %}
+                    <span class="ms-1">
+                        <iconify-icon icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
+                        {{ slot.date }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <!-- slot description -->
+                    <h5 class="card-title mt-2 fw-bold">
+                        {% if slot.is_registered %}
+                        <iconify-icon icon="line-md:confirm-circle" inline aria-hidden="true"></iconify-icon>
+                        {% else %}
+                        <iconify-icon icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
+                        {% endif %}
+                        {{ slot.description }}
+                    </h5>
 
-            {% if not slot.closed %}
-            <div class="col-sm">
-                <div class="card border-primary mb-1">
-                    <div class="card-body">
-                        <div class="card-title"><h4><i class="far fa-calendar-{% if reg_fri %}check{% else %}alt{% endif %}"></i> {{ slot.description }} </h4></div>
-                        <div class="small">{% if slot.is_registered %}<b><i>Je bent hier voor aangemeld!</i></b><br>{% endif %}{{ slot.date }}</div>
-                        {% if slot.announcement %}
-                        <div class="card-text alert alert-primary">{{ slot.announcement | safe }}</div>
+                    <!-- available spots -->
+                    <div class="card-text mb-4">
+                        Er {{ slot.available|pluralize:"is,zijn" }}
+                        <strong>
+                        {% if slot.available < 1 %}
+                        geen
+                        {% else %}
+                        {{ slot.available }}
                         {% endif %}
-                        <p class="card-text my-2">Er {{ slot.available|pluralize:"is,zijn" }} <span class="badge badge-primary">{{ slot.available }} / {{ slot.taken|add:slot.available }}</span> plek{{ slot.available|pluralize:"ken"}} beschikbaar.</p>
+                        </strong>
+                        plek{{ slot.available|pluralize:"ken"}} beschikbaar.
                     </div>
-                    <div class="card-text">
-                        <p><i class="fas fa-user-tie"></i> Aanwezige begeleiders: <br> {{ slot.tutors|join:", "|default:"-" }}</p>
-                    </div>
-                    {% if not user.is_superuser %}
-                    <div class="card-footer p-0">
-                        {% if slot.available != 0 and not slot.is_registered %}
-                          <a class="btn btn-primary btn-block register" href="{% url 'register' slot.name slot.pod %}" role="button"><i class="fas fa-sign-in-alt"></i> Aanmelden</a>
-                        {% elif slot.is_registered %}
-                          <a class="btn btn-link btn-block register" href="{% url 'deregister' slot.name slot.pod %}" role="button"><i class="fas fa-sign-out-alt"></i> Afmelden</a>
+                    
+                    <!-- register buttons -->
+                    <div>
+                        {% if slot.is_registered %}                  
+                        <a class="btn btn-outline-primary" href="{% url 'deregister' slot.name slot.pod %}">
+                            <iconify-icon icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
+                            Afmelden
+                        </a>
+                        {% elif slot.available == 0 %}
+                        <a class="btn btn-outline-primary disabled">
+                            <iconify-icon icon="line-md:cancel" inline aria-hidden="true"></iconify-icon>
+                            Aanmelden
+                        </a>
+                        {% else %}
+                        <a class="btn btn-primary" href="{% url 'register' slot.name slot.pod %}">
+                            <iconify-icon icon="line-md:login" inline aria-hidden="true"></iconify-icon>
+                            Aanmelden
+                        </a>
                         {% endif %}
                     </div>
+                </div>
+                <div class="card-footer small py-2">
+                    {% if slot.tutors %}
+                    <strong>Begeleiders:</strong>
+                    {{ slot.tutors|join:", "|default:"-" }}
+                    {% else %}
+                    <span class="text-muted">Er zijn (nog) geen begeleiders aanwezig.</span>
                     {% endif %}
                 </div>
             </div>
-            {% endif %}
-
+        </div>
+        {% endif %}
         {% endfor %}
-
     </div>
 </div>
-
 {% endblock %}
