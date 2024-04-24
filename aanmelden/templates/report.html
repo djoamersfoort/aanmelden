@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ block.super }}
-<script src="{% static 'js/report-reload.js' %}"></script>
+<script src="{% static 'js/report-reload.js' %}?v=1"></script>
 {% endblock %}
 
 {% block description %}
@@ -119,7 +119,7 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                     
                     <!-- register buttons -->
                     <div>
-                        <a class="btn btn-primary me-2" href="{% url 'register-manual' slot.name slot.pod %}">
+                        <a class="btn btn-primary" href="{% url 'register-manual' slot.name slot.pod %}">
                             <iconify-icon icon="line-md:person-add" inline aria-hidden="true"></iconify-icon>
                             Lid Aanmelden
                         </a>
