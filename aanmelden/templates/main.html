@@ -28,33 +28,29 @@ Je kunt je hier aanmelden voor DJO voor aankomend weekend.
         {% for slot in slots %}
         {% if not slot.closed %}
         <div class="col-md">
-            <div class="card mb-3 {% if slot.is_registered %}border-primary text-primary{% endif %}">
+            <div class="card mb-3 {% if slot.is_registered %}border-primary{% endif %}">
                 <!-- header status texts -->
-                <div class="card-header py-2 small">
+                <div class="card-header small py-2 {% if slot.is_registered %}text-primary{% endif %}">
                     {% if slot.is_registered %}
-                    <span>
-                        <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
-                        Aangemeld
-                    </span>
+                    <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
+                    Aangemeld! &bull;
                     {% endif %}
-                    {% if slot.announcement %}
-                    <span class="fw-bold text-primary">
-                        <iconify-icon icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
-                        {{ slot.announcement | safe }}
-                    </span>
-                    {% endif %}
-                    {% if not slot.announcement or not slot.is_registered %}
-                    <span class="ms-1">
-                        <iconify-icon icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
-                        {{ slot.date }}
-                    </span>
-                    {% endif %}
+                    <iconify-icon icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
+                    {{ slot.date }}
                 </div>
                 <div class="card-body">
+                    <!-- announcement -->
+                    {% if slot.announcement %}
+                    <div class="alert alert-primary mb-4">
+                        <iconify-icon icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
+                        {{ slot.announcement | safe }}
+                    </div>
+                    {% endif %}
+
                     <!-- slot description -->
                     <h5 class="card-title mt-2 fw-bold">
                         {% if slot.is_registered %}
-                        <iconify-icon icon="line-md:confirm-circle" inline aria-hidden="true"></iconify-icon>
+                        <iconify-icon icon="line-md:confirm-circle" inline class="text-primary" aria-hidden="true"></iconify-icon>
                         {% else %}
                         <iconify-icon icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
                         {% endif %}
@@ -94,7 +90,8 @@ Je kunt je hier aanmelden voor DJO voor aankomend weekend.
                         {% endif %}
                     </div>
                 </div>
-                <div class="card-footer small py-2">
+                <div class="card-footer small py-2 {% if slot.is_registered %}text-primary{% endif %}">
+                    <iconify-icon icon="line-md:account" inline aria-hidden="true"></iconify-icon>
                     {% if slot.tutors %}
                     <strong>Begeleiders:</strong>
                     {{ slot.tutors|join:", "|default:"-" }}
