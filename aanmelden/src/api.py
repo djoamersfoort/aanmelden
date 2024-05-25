@@ -1,6 +1,9 @@
 from datetime import date
 
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Value
+from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -8,7 +11,8 @@ from django.views.generic import View
 
 from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin, AuthenticatedMixin
 from .models import Presence, MacAddress, Slot
-from .utils import register, deregister, NotEnoughSlotsException, TooManyDaysException, StripcardLimitReachedException, AlreadySeenException
+from .utils import register, deregister, NotEnoughSlotsException, TooManyDaysException, StripcardLimitReachedException, \
+    AlreadySeenException, mark_seen
 
 
 class FreeV2(View):
@@ -90,7 +94,36 @@ class PresentSinceDate(View):
 
 class Slots(AuthenticatedMixin, View):
     def get(self, request):
-        return JsonResponse({'slots': Slot.get_enabled_slots(request.user)})
+        slots = Slot.get_enabled_slots(request.user)
+        if not self.request.user.is_superuser:
+            return JsonResponse({"slots": slots})
+
+        for slot in slots:
+            slot['presence'] = list(
+                Presence.objects.filter(date=slot['date'], pod=slot['pod'], user__is_superuser=False)
+                .values('id', 'seen')
+                .annotate(name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            )
+
+        members = list(User.objects
+                   .filter(is_active=True)
+                   .values('id')
+                   .annotate(name=Concat('first_name', Value(' '), 'last_name'))
+                   )
+
+        return JsonResponse({"slots": slots, "members": members})
+
+
+class MarkSeen(AuthenticatedMixin, View):
+    def get(self, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return HttpResponse(status=403)
+
+        pk = int(kwargs.get('pk'))
+        seen = kwargs.get('seen')
+
+        mark_seen(pk, seen)
+        return JsonResponse({'ok': True})
 
 
 class Register(AuthenticatedMixin, SlotContextMixin, View):
@@ -105,6 +138,15 @@ class Register(AuthenticatedMixin, SlotContextMixin, View):
             return JsonResponse({'error': 'You have reached the limit on your strip card'}, status=400)
 
         return JsonResponse({"error": None})
+
+
+class RegisterManual(AuthenticatedMixin, SlotContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return HttpResponse(status=403)
+
+        register(self.slot, User.objects.get(id=int(kwargs.get('pk'))))
+        return JsonResponse({'ok': True})
 
 
 class DeRegister(AuthenticatedMixin, SlotContextMixin, View):
