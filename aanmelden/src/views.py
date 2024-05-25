@@ -16,7 +16,7 @@ from aanmelden.sockets import sio
 from aanmelden.src.mixins import BegeleiderRequiredMixin, SlotContextMixin
 from aanmelden.src.models import Presence, DjoUser, UserInfo, Slot
 from aanmelden.src.utils import (register, deregister, NotEnoughSlotsException, TooManyDaysException,
-                                 StripcardLimitReachedException, AlreadySeenException)
+                                 StripcardLimitReachedException, AlreadySeenException, mark_seen)
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -158,23 +158,13 @@ class Report(BegeleiderRequiredMixin, LoginRequiredMixin, ListView):
         return Presence.objects.filter(date__in=dates).order_by('-user__is_superuser')
 
 
-class MarkAsSeen(LoginRequiredMixin, View):
+class MarkAsSeen(BegeleiderRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         pk = int(kwargs.get('pk'))
         seen = kwargs.get('seen')
-        try:
-            presence = Presence.objects.get(pk=pk)
-            presence.seen = seen == 'true'
-            presence.seen_by = 'manual'
-            presence.save()
-        except Presence.DoesNotExist:
-            # Presence not found, who cares
-            pass
 
-        # Tell all clients to update the report page
-        asyncio.run(sio.emit("update_report_page"))
-
+        mark_seen(pk, seen)
         return JsonResponse({"ok": True})
 
 

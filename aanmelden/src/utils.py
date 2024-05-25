@@ -27,8 +27,8 @@ class StripcardLimitReachedException(RegisterException):
     pass
 
 
-def register(slot, user):
-    if not user.is_superuser:
+def register(slot, user, limit=True):
+    if not user.is_superuser and not limit:
         if Presence.slots_available(slot.date, slot.pod) <= 0:
             raise NotEnoughSlotsException()
 
@@ -62,6 +62,19 @@ def register(slot, user):
     asyncio.run(sio.emit("update_main_page"))
 
     return presence
+
+
+def mark_seen(pk, seen):
+    try:
+        presence = Presence.objects.get(pk=pk)
+        presence.seen = seen == 'true'
+        presence.seen_by = 'manual'
+        presence.save()
+    except Presence.DoesNotExist:
+        # Presence not found, who cares
+        pass
+
+    asyncio.run(sio.emit("update_report_page"))
 
 
 class DeRegisterException(Exception):

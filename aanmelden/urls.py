@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/v1/slots', api.Slots.as_view()),
     path('api/v1/register/<str:day>/<str:pod>', api.Register.as_view()),
     path('api/v1/deregister/<str:day>/<str:pod>', api.DeRegister.as_view()),
+    path('api/v1/register_manual/<str:day>/<str:pod>/<str:pk>', api.RegisterManual.as_view()),
+    path('api/v1/seen/<int:pk>/<str:seen>', api.MarkSeen.as_view()),
     re_path(r'oauth/.*', views.LoginResponseView.as_view()),
     path('', views.LoginView.as_view(), name='login'),
 ]
