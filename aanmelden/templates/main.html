@@ -15,7 +15,7 @@ Je kunt je hier aanmelden voor DJO voor aankomend weekend.
 <div class="container text-center">
     {% if user.userinfo.stripcard_count > 0 %}
     <div class="alert alert-primary mb-4">
-        <iconify-icon icon="line-md:confirm-circle" inline aria-hidden="true"></iconify-icon>
+        <iconify-icon noobserver icon="line-md:confirm-circle" inline aria-hidden="true"></iconify-icon>
         Je strippenkaart is
         <strong>{{ user.userinfo.stripcard_used }}</strong>
         van de
@@ -32,17 +32,17 @@ Je kunt je hier aanmelden voor DJO voor aankomend weekend.
                 <!-- header status texts -->
                 <div class="card-header small py-2 {% if slot.is_registered %}text-primary{% endif %}">
                     {% if slot.is_registered %}
-                    <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
+                    <iconify-icon noobserver icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
                     Aangemeld! &bull;
                     {% endif %}
-                    <iconify-icon icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
+                    <iconify-icon noobserver icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
                     {{ slot.date }}
                 </div>
                 <div class="card-body">
                     <!-- announcement -->
                     {% if slot.announcement %}
                     <div class="alert alert-primary mb-4">
-                        <iconify-icon icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
+                        <iconify-icon noobserver icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
                         {{ slot.announcement | safe }}
                     </div>
                     {% endif %}
@@ -50,9 +50,9 @@ Je kunt je hier aanmelden voor DJO voor aankomend weekend.
                     <!-- slot description -->
                     <h5 class="card-title mt-2 fw-bold">
                         {% if slot.is_registered %}
-                        <iconify-icon icon="line-md:confirm-circle" inline class="text-primary" aria-hidden="true"></iconify-icon>
+                        <iconify-icon noobserver icon="line-md:confirm-circle" inline class="text-primary" aria-hidden="true"></iconify-icon>
                         {% else %}
-                        <iconify-icon icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
+                        <iconify-icon noobserver icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
                         {% endif %}
                         {{ slot.description }}
                     </h5>
@@ -74,24 +74,24 @@ Je kunt je hier aanmelden voor DJO voor aankomend weekend.
                     <div>
                         {% if slot.is_registered %}                  
                         <a class="btn btn-outline-primary" href="{% url 'deregister' slot.name slot.pod %}">
-                            <iconify-icon icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
+                            <iconify-icon noobserver icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
                             Afmelden
                         </a>
                         {% elif slot.available == 0 %}
                         <a class="btn btn-outline-primary disabled">
-                            <iconify-icon icon="line-md:cancel" inline aria-hidden="true"></iconify-icon>
+                            <iconify-icon noobserver icon="line-md:cancel" inline aria-hidden="true"></iconify-icon>
                             Aanmelden
                         </a>
                         {% else %}
                         <a class="btn btn-primary" href="{% url 'register' slot.name slot.pod %}">
-                            <iconify-icon icon="line-md:login" inline aria-hidden="true"></iconify-icon>
+                            <iconify-icon noobserver icon="line-md:login" inline aria-hidden="true"></iconify-icon>
                             Aanmelden
                         </a>
                         {% endif %}
                     </div>
                 </div>
                 <div class="card-footer small py-2 {% if slot.is_registered %}text-primary{% endif %}">
-                    <iconify-icon icon="line-md:account" inline aria-hidden="true"></iconify-icon>
+                    <iconify-icon noobserver icon="line-md:account" inline aria-hidden="true"></iconify-icon>
                     {% if slot.tutors %}
                     <strong>Begeleiders:</strong>
                     {{ slot.tutors|join:", "|default:"-" }}

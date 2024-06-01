@@ -22,17 +22,17 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                 <!-- header status texts -->
                 <div class="card-header py-2 small {% if slot.is_registered %}text-primary{% endif %}">
                     {% if slot.is_registered %}
-                    <iconify-icon icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
+                    <iconify-icon noobserver icon="line-md:pencil" inline aria-hidden="true"></iconify-icon>
                     Aangemeld! &bull;
                     {% endif %}
-                    <iconify-icon icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
+                    <iconify-icon noobserver icon="line-md:calendar" inline role="img" alt="datum:"></iconify-icon>
                     {{ slot.date }}
                 </div>
                 <div class="card-body">
                     <!-- announcement -->
                     {% if slot.announcement %}
                     <div class="alert alert-primary mb-4">
-                        <iconify-icon icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
+                        <iconify-icon noobserver icon="line-md:bell-loop" inline role="img" alt="announcement:"></iconify-icon>
                         {{ slot.announcement | safe }}
                     </div>
                     {% endif %}
@@ -40,9 +40,9 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                     <!-- slot description -->
                     <h5 class="card-title mt-2 fw-bold">
                         {% if slot.is_registered %}
-                        <iconify-icon icon="line-md:confirm-circle" inline class="text-primary" aria-hidden="true"></iconify-icon>
+                        <iconify-icon noobserver icon="line-md:confirm-circle" inline class="text-primary" aria-hidden="true"></iconify-icon>
                         {% else %}
-                        <iconify-icon icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
+                        <iconify-icon noobserver icon="line-md:chevron-right-circle" inline aria-hidden="true"></iconify-icon>
                         {% endif %}
                         {{ slot.description }}
                     </h5>
@@ -79,7 +79,7 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                             {% if member.date == slot.date and member.pod == slot.pod %}
                             {% if member.user.is_superuser %}
                             <div>
-                                <iconify-icon icon="line-md:account" class="text-primary" inline role="img" alt="begeleider:"></iconify-icon>
+                                <iconify-icon noobserver icon="line-md:account" class="text-primary" inline role="img" alt="begeleider:"></iconify-icon>
                                 {{ member.user.first_name }} {{ member.user.last_name }}
                             </div>
                             {% else %}
@@ -96,13 +96,13 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                                     {{ member.user.first_name }} {{ member.user.last_name }}
                                     {% if 'strippenkaart' in member.user.userinfo.account_type %}
                                     <span class="text-primary ms-1">
-                                        <iconify-icon icon="line-md:check-list-3" inline role="img" alt="strippenkaart"></iconify-icon>
+                                        <iconify-icon noobserver icon="line-md:check-list-3" inline role="img" alt="strippenkaart"></iconify-icon>
                                         {{ member.user.userinfo.stripcard_used }} / {{ member.user.userinfo.stripcard_count }}
                                     </span>
                                     {% endif %}
                                     {% if member.seen and member.seen_by == 'mac' %}
                                     <span class="text-primary ms-1">
-                                        <iconify-icon icon="line-md:cloud" inline role="img" alt="aangemeld via MAC adres"></iconify-icon>
+                                        <iconify-icon noobserver icon="line-md:cloud" inline role="img" alt="aangemeld via MAC adres"></iconify-icon>
                                     </span>
                                     {% endif %}
                                 </label>
@@ -116,18 +116,18 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                     <!-- register buttons -->
                     <div>
                         <a class="btn btn-primary" href="{% url 'register-manual' slot.name slot.pod %}">
-                            <iconify-icon icon="line-md:person-add" inline aria-hidden="true"></iconify-icon>
+                            <iconify-icon noobserver icon="line-md:person-add" inline aria-hidden="true"></iconify-icon>
                             Lid Aanmelden
                         </a>
                         
                         {% if slot.is_registered %}                  
                         <a class="btn btn-outline-primary" href="{% url 'deregister' slot.name slot.pod %}">
-                            <iconify-icon icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
+                            <iconify-icon noobserver icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
                             Afmelden
                         </a>
                         {% else %}
                         <a class="btn btn-primary" href="{% url 'register' slot.name slot.pod %}">
-                            <iconify-icon icon="line-md:login" inline aria-hidden="true"></iconify-icon>
+                            <iconify-icon noobserver icon="line-md:login" inline aria-hidden="true"></iconify-icon>
                             Aanmelden
                         </a>
                         {% endif %}
