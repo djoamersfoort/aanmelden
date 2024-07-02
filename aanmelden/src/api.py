@@ -2,7 +2,7 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Value
+from django.db.models import Value, F
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.utils.decorators import method_decorator
@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin, AuthenticatedMixin
-from .models import Presence, MacAddress, Slot
+from .models import Presence, MacAddress, Slot, UserInfo
 from .utils import register, deregister, NotEnoughSlotsException, TooManyDaysException, StripcardLimitReachedException, \
     AlreadySeenException, mark_seen
 
@@ -102,14 +102,23 @@ class Slots(AuthenticatedMixin, View):
             slot['presence'] = list(
                 Presence.objects.filter(date=slot['date'], pod=slot['pod'], user__is_superuser=False)
                 .values('id', 'seen')
-                .annotate(name=Concat('user__first_name', Value(' '), 'user__last_name'))
+                .annotate(
+                    name=Concat('user__first_name', Value(' '), 'user__last_name'),
+                    stripcard_used=F('user__userinfo__stripcard_used'),
+                    stripcard_count=F('user__userinfo__stripcard_count')
+                )
             )
 
-        members = list(User.objects
-                   .filter(is_active=True)
-                   .values('id')
-                   .annotate(name=Concat('first_name', Value(' '), 'last_name'))
-                   )
+        members = list(
+            User.objects
+            .filter(is_active=True)
+            .values('id')
+            .annotate(
+                name=Concat('first_name', Value(' '), 'last_name'),
+                stripcard_used=F('userinfo__stripcard_used'),
+                stripcard_count=F('userinfo__stripcard_count')
+            )
+        )
 
         return JsonResponse({"slots": slots, "members": members})
 

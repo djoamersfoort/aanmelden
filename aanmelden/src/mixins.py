@@ -123,8 +123,8 @@ class AuthenticatedMixin:
         user.userinfo.days = decoded_jwt['days']
         user.userinfo.account_type = decoded_jwt['account_type']
         if decoded_jwt['stripcard'] is not None:
-            user.userinfo.stripcard_used = user['stripcard']['used']
-            user.userinfo.stripcard_count = user['stripcard']['count']
+            user.userinfo.stripcard_used = decoded_jwt['stripcard']['used']
+            user.userinfo.stripcard_count = decoded_jwt['stripcard']['count']
         else:
             # No active stripcard -> reset counters
             user.userinfo.stripcard_used = 0
