@@ -44,8 +44,6 @@ def register(slot, user, limit=True):
             date__gte=start, date__lte=end, user=user
         ).count()
 
-        print(start, end, reg_count)
-
         if reg_count >= user.userinfo.days:
             raise TooManyDaysException()
 
@@ -73,8 +71,6 @@ def register(slot, user, limit=True):
 def register_future(date, slot, user):
     if not user.is_superuser:
         raise JochDetectedException
-
-    # print(date, slot.date)
 
     if date.weekday() != slot.date.weekday():
         raise JochDetectedException
