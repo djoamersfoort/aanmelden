@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 exec uvicorn \
   --host 0.0.0.0 \

@@ -27,19 +27,25 @@ class StripcardLimitReachedException(RegisterException):
     pass
 
 
+class JochDetectedException(RegisterException):
+    pass
+
+
 def register(slot, user, limit=True):
-    if not user.is_superuser and not limit:
+    if not user.is_superuser and limit:
         if Presence.slots_available(slot.date, slot.pod) <= 0:
             raise NotEnoughSlotsException()
 
-        # Check if allowed to register for the number of days
-        if slot.name == 'fri':
-            # Reg for Friday, check saturday in the same weekend
-            check_date = slot.date + timedelta(days=1)
-        else:
-            # Reg for Saturday, check Friday in the same weekend
-            check_date = slot.date - timedelta(days=1)
-        reg_count = Presence.objects.filter(date=check_date, user=user).count()
+        date = slot.date
+        start = date - timedelta(days=date.weekday())
+        end = start + timedelta(days=6)
+
+        reg_count = Presence.objects.filter(
+            date__gte=start, date__lte=end, user=user
+        ).count()
+
+        print(start, end, reg_count)
+
         if reg_count >= user.userinfo.days:
             raise TooManyDaysException()
 
@@ -64,11 +70,42 @@ def register(slot, user, limit=True):
     return presence
 
 
+def register_future(date, slot, user):
+    if not user.is_superuser:
+        raise JochDetectedException
+
+    # print(date, slot.date)
+
+    if date.weekday() != slot.date.weekday():
+        raise JochDetectedException
+
+    presence = Presence()
+    presence.date = date
+    presence.pod = slot.pod
+    presence.user = user
+
+    try:
+        presence.save()
+    except IntegrityError as e:
+        # Already registered -> ignore
+        pass
+
+    # only update if register date is in current week
+    date_start = slot.date - timedelta(days=slot.date.weekday())
+    date_end = date_start + timedelta(days=6)
+
+    if date >= date_start and date <= date_end:
+        asyncio.run(sio.emit("update_report_page"))
+        asyncio.run(sio.emit("update_main_page"))
+
+    return presence
+
+
 def mark_seen(pk, seen):
     try:
         presence = Presence.objects.get(pk=pk)
-        presence.seen = seen == 'true'
-        presence.seen_by = 'manual'
+        presence.seen = seen == "true"
+        presence.seen_by = "manual"
         presence.save()
     except Presence.DoesNotExist:
         # Presence not found, who cares
@@ -100,6 +137,23 @@ def deregister(slot, user):
     asyncio.run(sio.emit("update_main_page"))
 
 
+def deregister_future(date, slot, user):
+    try:
+        presence = Presence.objects.get(date=date, user=user, pod=slot.pod)
+    except Presence.DoesNotExist:
+        return
+
+    presence.delete()
+
+    # only update if deregister date is in current week
+    date_start = slot.date - timedelta(days=slot.date.weekday())
+    date_end = date_start + timedelta(days=6)
+
+    if date >= date_start and date <= date_end:
+        asyncio.run(sio.emit("update_report_page"))
+        asyncio.run(sio.emit("update_main_page"))
+
+
 @lru_cache()
 def get_openid_configuration():
     return requests.get(settings.OPENID_CONFIGURATION, timeout=10).json()
@@ -107,14 +161,14 @@ def get_openid_configuration():
 
 @lru_cache()
 def get_jwks_client():
-    return PyJWKClient(uri=get_openid_configuration()['jwks_uri'])
+    return PyJWKClient(uri=get_openid_configuration()["jwks_uri"])
 
 
 def get_access_token(request) -> (str, None):
-    token = request.GET.get('access_token', '').strip()
+    token = request.GET.get("access_token", "").strip()
     if token == "":
-        parts = request.headers.get('authorization', '').split()
-        if len(parts) == 2 and parts[0].lower() == 'bearer':
+        parts = request.headers.get("authorization", "").split()
+        if len(parts) == 2 and parts[0].lower() == "bearer":
             token = parts[1]
     if token == "":
         return None

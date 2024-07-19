@@ -44,6 +44,12 @@
                             Report
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'calendar' %}active{% endif %}" href="{% url 'calendar' %}">
+                            <iconify-icon noobserver icon="line-md:calendar" inline aria-hidden="true"></iconify-icon>
+                            Agenda
+                        </a>
+                    </li>
                     {% endif %}
                     {% if user.is_staff %}
                     <li class="nav-item">

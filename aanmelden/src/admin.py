@@ -5,8 +5,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 @admin.register(Presence)
 class PresenceAdmin(admin.ModelAdmin):
-    date_hierarchy = 'date'
-    list_filter = ('user',)
+    date_hierarchy = "date"
+    list_filter = ("user",)
 
 
 # Define an inline admin descriptor for User model
@@ -14,7 +14,7 @@ class PresenceAdmin(admin.ModelAdmin):
 class UserInfoInline(admin.StackedInline):
     model = UserInfo
     can_delete = False
-    verbose_name_plural = 'User info'
+    verbose_name_plural = "User info"
 
 
 # Define a new User admin
