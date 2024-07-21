@@ -123,7 +123,7 @@ class Register(LoginRequiredMixin, SlotContextMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         try:
-            register(self.slot, request.user)
+            register(self.slot, request.user, request.user.is_superuser)
         except NotEnoughSlotsException:
             return HttpResponseRedirect(reverse("full", kwargs=kwargs))
         except TooManyDaysException:

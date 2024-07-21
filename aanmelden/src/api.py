@@ -154,7 +154,7 @@ class MarkSeen(AuthenticatedMixin, View):
 class Register(AuthenticatedMixin, SlotContextMixin, View):
     def get(self, request, *args, **kwargs):
         try:
-            register(self.slot, request.user)
+            register(self.slot, request.user, request.user.is_superuser)
         except NotEnoughSlotsException:
             return JsonResponse({"error": "Not enough slots available"}, status=400)
         except TooManyDaysException:
@@ -174,7 +174,8 @@ class RegisterManual(AuthenticatedMixin, SlotContextMixin, View):
         if not self.request.user.is_superuser:
             return HttpResponse(status=403)
 
-        register(self.slot, User.objects.get(id=int(kwargs.get("pk"))), limit=False)
+        user = User.objects.get(id=int(kwargs.get("pk")))
+        register(self.slot, user, True)
         return JsonResponse({"ok": True})
 
 

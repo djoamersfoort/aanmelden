@@ -31,8 +31,8 @@ class JochDetectedException(RegisterException):
     pass
 
 
-def register(slot, user, limit=True):
-    if not user.is_superuser and limit:
+def register(slot, user, skip_checks=False):
+    if not skip_checks:
         if Presence.slots_available(slot.date, slot.pod) <= 0:
             raise NotEnoughSlotsException()
 
