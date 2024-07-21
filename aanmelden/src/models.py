@@ -4,15 +4,22 @@ from django.conf import settings
 from django.forms.models import model_to_dict
 import datetime
 
+DAY_NUMBERS = {"mon": 0, "tue": "1", "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
+
 POD_CHOICES = (
-    ('m', 'Ochtend'),
-    ('a', 'Middag'),
-    ('e', 'Avond'),
+    ("m", "Ochtend"),
+    ("a", "Middag"),
+    ("e", "Avond"),
 )
 
 DAY_CHOICES = (
-    ('fri', 'Vrijdag'),
-    ('sat', 'Zaterdag')
+    ("mon", "Maandag"),
+    ("tue", "Dinsdag"),
+    ("wed", "Woensdag"),
+    ("thu", "Donderdag"),
+    ("fri", "Vrijdag"),
+    ("sat", "Zaterdag"),
+    ("sun", "Zondag"),
 )
 
 
@@ -23,13 +30,17 @@ class DjoUser(User):
 
     @staticmethod
     def is_begeleider(account_type):
-        types = account_type.split(',')
-        return 'begeleider' in types or 'aspirant_begeleider' in types or 'ondersteuning' in types
+        types = account_type.split(",")
+        return (
+            "begeleider" in types
+            or "aspirant_begeleider" in types
+            or "ondersteuning" in types
+        )
 
     @staticmethod
     def has_strippenkaart(account_type):
-        types = account_type.split(',')
-        return 'strippenkaart' in types
+        types = account_type.split(",")
+        return "strippenkaart" in types
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
@@ -48,7 +59,7 @@ class UserInfo(models.Model):
 
 class Slot(models.Model):
     class Meta:
-        unique_together = ['name', 'pod']
+        unique_together = ["name", "pod"]
 
     name = models.CharField(max_length=3, choices=DAY_CHOICES)
     pod = models.CharField(choices=POD_CHOICES, max_length=1)
@@ -60,13 +71,10 @@ class Slot(models.Model):
 
     @property
     def date(self):
-        day_numbers = {
-            'fri': 4,
-            'sat': 5,
-        }
-
         today = datetime.date.today()
-        return today + datetime.timedelta((day_numbers[self.name] - today.weekday()) % 7)
+        return today + datetime.timedelta(
+            (DAY_NUMBERS[self.name] - today.weekday()) % 7
+        )
 
     @property
     def closed(self):
@@ -86,8 +94,11 @@ class Slot(models.Model):
 
     @property
     def tutors(self):
-        return list(Presence.objects.filter(date=self.date, pod=self.pod, user__is_superuser=True)
-                    .values_list('user__first_name', flat=True))
+        return list(
+            Presence.objects.filter(
+                date=self.date, pod=self.pod, user__is_superuser=True
+            ).values_list("user__first_name", flat=True)
+        )
 
     @property
     def announcement(self):
@@ -98,7 +109,9 @@ class Slot(models.Model):
         return special_date.announcement
 
     def is_registered(self, user):
-        return Presence.objects.filter(user=user, date=self.date, pod=self.pod).count() > 0
+        return (
+            Presence.objects.filter(user=user, date=self.date, pod=self.pod).count() > 0
+        )
 
     @staticmethod
     def get_enabled_slots(user=None):
@@ -106,11 +119,19 @@ class Slot(models.Model):
         available_slots = []
         for slot in slots:
             available_slot = model_to_dict(slot)
-            available_slot.pop('id')
-            for field in ['date', 'taken', 'available', 'closed', 'tutor_count', 'tutors', 'announcement']:
+            available_slot.pop("id")
+            for field in [
+                "date",
+                "taken",
+                "available",
+                "closed",
+                "tutor_count",
+                "tutors",
+                "announcement",
+            ]:
                 available_slot[field] = slot.__getattribute__(field)
             if user:
-                available_slot['is_registered'] = slot.is_registered(user)
+                available_slot["is_registered"] = slot.is_registered(user)
             available_slots.append(available_slot)
         return available_slots
 
@@ -125,18 +146,20 @@ class Slot(models.Model):
 
 class Presence(models.Model):
     class Meta:
-        unique_together = ('user', 'date', 'pod')
+        unique_together = ("user", "date", "pod")
         indexes = [
-            models.Index(fields=['date', 'pod']),
-            models.Index(fields=['date', 'user']),
-            models.Index(fields=['date', 'user', 'pod']),
-            models.Index(fields=['date']),
+            models.Index(fields=["date", "pod"]),
+            models.Index(fields=["date", "user"]),
+            models.Index(fields=["date", "user", "pod"]),
+            models.Index(fields=["date"]),
         ]
 
     @staticmethod
     def get_tutor_count(date, pod=None):
         if pod:
-            return Presence.objects.filter(date=date, pod=pod, user__is_superuser=True).count()
+            return Presence.objects.filter(
+                date=date, pod=pod, user__is_superuser=True
+            ).count()
         else:
             return Presence.objects.filter(date=date, user__is_superuser=True).count()
 
@@ -166,21 +189,22 @@ class Presence(models.Model):
 
     @staticmethod
     def slots_taken(on_date, pod=None):
-        return Presence.objects.filter(date=on_date, pod=pod, user__is_superuser=False).count()
+        return Presence.objects.filter(
+            date=on_date, pod=pod, user__is_superuser=False
+        ).count()
 
     def __str__(self):
         return f"{self.date}/{self.pod}: {self.user}"
 
-    SEEN_BY_CHOICES = (
-        ('mac', 'Mac Adres'),
-        ('manual', 'Handmatig Aangemeld')
-    )
+    SEEN_BY_CHOICES = (("mac", "Mac Adres"), ("manual", "Handmatig Aangemeld"))
 
     user = models.ForeignKey(DjoUser, models.CASCADE)
     date = models.DateField()
     pod = models.CharField(choices=POD_CHOICES, max_length=1, null=True)
     seen = models.BooleanField(default=False)
-    seen_by = models.CharField(max_length=6, choices=SEEN_BY_CHOICES, default='manual', null=False)
+    seen_by = models.CharField(
+        max_length=6, choices=SEEN_BY_CHOICES, default="manual", null=False
+    )
 
 
 class SpecialDate(models.Model):
@@ -212,8 +236,8 @@ class SpecialDate(models.Model):
 
 class MacAddress(models.Model):
     class Meta:
-        verbose_name_plural = 'Mac Addresses'
-        order_with_respect_to = 'user'
+        verbose_name_plural = "Mac Addresses"
+        order_with_respect_to = "user"
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}: {self.mac}"

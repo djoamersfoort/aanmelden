@@ -10,6 +10,10 @@ body {
     max-width: 24rem;
 }
 
+.max-w-lg {
+    max-width: 38rem;
+}
+
 iconify-icon {
     display: inline-block;
 }
@@ -18,4 +22,13 @@ iconify-icon:not([width]) {
 }
 iconify-icon:not([height]) {
     height: 1em;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.table-layout-fixed {
+    table-layout: fixed;
 }

@@ -16,9 +16,9 @@ from aanmelden.sockets import sio
 
 # Only used in debug/devel mode
 static_files = {
-    '/static': './aanmelden/static',
+    "/static": "./aanmelden/static",
 }
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'aanmelden.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "aanmelden.settings")
 
 application = ASGIApp(sio, get_asgi_application(), static_files=static_files)

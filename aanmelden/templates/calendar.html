@@ -1,0 +1,49 @@
+{% extends 'base/base_main.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<script defer src="{% static 'js/calendar.js' %}?v=1"></script>
+{{ entries|json_script:"entries" }}
+{{ slots|json_script:"slots" }}
+{% endblock %}
+
+{% block description %}
+Je kunt je hier met de kalender aanmelden.
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+
+<div class="container max-w-lg">
+    <!-- calendar -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div id="calendar-title" class="fw-bold text-center text-capitalize lead"></div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" onclick="nextMonth(-1)">
+                <iconify-icon noobserver icon="line-md:arrow-left" inline role="img" alt="vorige maand"></iconify-icon>
+            </button>
+            <button class="btn btn-primary" onclick="resetMonth()">
+                <iconify-icon noobserver icon="line-md:home-md" inline role="img" alt="deze maand"></iconify-icon>
+            </button>
+            <button class="btn btn-primary" onclick="nextMonth(1)">
+                <iconify-icon noobserver icon="line-md:arrow-right" inline role="img" alt="volgende maand"></iconify-icon>
+            </button>
+        </div>
+    </div>
+    <table class="table table-bordered table-layout-fixed">
+        <thead class="text-center table-active">
+            <tr>
+                <th class="p-2">Ma</th>
+                <th class="p-2">Di</th>
+                <th class="p-2">Wo</th>
+                <th class="p-2">Do</th>
+                <th class="p-2">Vr</th>
+                <th class="p-2">Za</th>
+                <th class="p-2">Zo</th>
+            </tr>
+        </thead>
+        <tbody id="calendar-body"></tbody>
+    </table>
+</div>
+{% endblock %}
