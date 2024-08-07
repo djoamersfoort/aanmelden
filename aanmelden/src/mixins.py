@@ -37,7 +37,7 @@ class ClientCredentialsRequiredMixin:
                     token_url=settings.IDP_TOKEN_URL,
                     client_secret=settings.INTROSPECTION_CLIENT_SECRET,
                 )
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 # Failed to get an introspection token -> bail
                 print(e)
                 return False

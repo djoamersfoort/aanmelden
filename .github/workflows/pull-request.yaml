@@ -1,0 +1,29 @@
+name: Run PR Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pylint==3.2.6 pylint-django==2.5.5 black==24.8.0
+
+      - name: Run pylint and black
+        run: |
+          black --check aanmelden
+          cp aanmelden/settings.example.py aanmelden/settings.py
+          DJANGO_SETTINGS_MODULE="aanmelden.settings" pylint --load-plugins=pylint_django aanmelden
