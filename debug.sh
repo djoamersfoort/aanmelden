@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-exec uvicorn \
+uvicorn \
   --host 0.0.0.0 \
   --port 8000 \
   --log-level=info \

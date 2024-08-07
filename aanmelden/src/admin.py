@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Presence, SpecialDate, MacAddress, UserInfo, User, Slot
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth import get_user_model
+
+from aanmelden.src.models import Presence, SpecialDate, MacAddress, UserInfo, Slot
 
 
 @admin.register(Presence)
@@ -23,8 +25,8 @@ class UserAdmin(BaseUserAdmin):
 
 
 # Re-register UserAdmin
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+admin.site.unregister(get_user_model())
+admin.site.register(get_user_model(), UserAdmin)
 
 admin.site.register(UserInfo)
 admin.site.register(SpecialDate)

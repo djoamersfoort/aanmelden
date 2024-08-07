@@ -58,7 +58,7 @@ def register(slot, user, skip_checks=False):
 
     try:
         presence.save()
-    except IntegrityError as e:
+    except IntegrityError:
         # Already registered -> ignore
         pass
 
@@ -82,7 +82,7 @@ def register_future(date, slot, user):
 
     try:
         presence.save()
-    except IntegrityError as e:
+    except IntegrityError:
         # Already registered -> ignore
         pass
 
@@ -90,7 +90,7 @@ def register_future(date, slot, user):
     date_start = slot.date - timedelta(days=slot.date.weekday())
     date_end = date_start + timedelta(days=6)
 
-    if date >= date_start and date <= date_end:
+    if date_start <= date <= date_end:
         asyncio.run(sio.emit("update_report_page"))
         asyncio.run(sio.emit("update_main_page"))
 
@@ -126,8 +126,8 @@ def deregister(slot, user):
 
     if presence.seen:
         raise AlreadySeenException()
-    else:
-        presence.delete()
+
+    presence.delete()
 
     asyncio.run(sio.emit("update_report_page"))
     asyncio.run(sio.emit("update_main_page"))
@@ -145,7 +145,7 @@ def deregister_future(date, slot, user):
     date_start = slot.date - timedelta(days=slot.date.weekday())
     date_end = date_start + timedelta(days=6)
 
-    if date >= date_start and date <= date_end:
+    if date_start <= date <= date_end:
         asyncio.run(sio.emit("update_report_page"))
         asyncio.run(sio.emit("update_main_page"))
 

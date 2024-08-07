@@ -1,10 +1,11 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.forms.models import model_to_dict
 import datetime
 
-DAY_NUMBERS = {"mon": 0, "tue": "1", "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.forms.models import model_to_dict
+
+DAY_NUMBERS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
 
 POD_CHOICES = (
     ("m", "Ochtend"),
@@ -22,8 +23,10 @@ DAY_CHOICES = (
     ("sun", "Zondag"),
 )
 
+DjangoUser = get_user_model()
 
-class DjoUser(User):
+
+class DjoUser(DjangoUser):
     class Meta:
         proxy = True
         ordering = ["first_name", "last_name"]
@@ -47,14 +50,14 @@ class DjoUser(User):
 
 
 class UserInfo(models.Model):
-    user: DjoUser = models.OneToOneField(User, on_delete=models.CASCADE)
+    user: DjoUser = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     days = models.IntegerField(default=1, null=False)
     account_type = models.CharField(max_length=100, default="", null=False)
     stripcard_used = models.IntegerField(default=0, null=False)
     stripcard_count = models.IntegerField(default=0, null=False)
 
     def __str__(self):
-        return f"User details for {self.user.first_name} {self.user.last_name}"
+        return f"User details for {self.user}"
 
 
 class Slot(models.Model):
@@ -129,7 +132,7 @@ class Slot(models.Model):
                 "tutors",
                 "announcement",
             ]:
-                available_slot[field] = slot.__getattribute__(field)
+                available_slot[field] = getattr(slot, field)
             if user:
                 available_slot["is_registered"] = slot.is_registered(user)
             available_slots.append(available_slot)
@@ -160,8 +163,7 @@ class Presence(models.Model):
             return Presence.objects.filter(
                 date=date, pod=pod, user__is_superuser=True
             ).count()
-        else:
-            return Presence.objects.filter(date=date, user__is_superuser=True).count()
+        return Presence.objects.filter(date=date, user__is_superuser=True).count()
 
     @staticmethod
     def slots_available(on_date, pod=None):

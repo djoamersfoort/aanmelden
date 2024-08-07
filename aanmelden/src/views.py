@@ -39,7 +39,7 @@ class LoginView(View):
             redirect_uri=settings.IDP_REDIRECT_URL,
             scope=settings.IDP_API_SCOPES,
         )
-        auth_url, state = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
+        auth_url, _ = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
         return HttpResponseRedirect(auth_url)
 
 
@@ -56,48 +56,47 @@ class LoginResponseView(View):
                 authorization_response=full_response_url,
                 client_secret=settings.IDP_CLIENT_SECRET,
             )
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             # Something went wrong getting the token
-            return HttpResponseForbidden(f"Geen toegang!")
+            return HttpResponseForbidden("Geen toegang!")
 
-        if "access_token" in access_token and access_token["access_token"] != "":
-            user_profile = oauth.get(settings.IDP_API_URL).json()
-            username = "idp-{0}".format(user_profile["id"])
-
-            try:
-                found_user = DjoUser.objects.get(username=username)
-            except DjoUser.DoesNotExist:
-                found_user = DjoUser()
-                found_user.username = username
-                found_user.set_unusable_password()
-
-            if not hasattr(found_user, "userinfo"):
-                found_user.userinfo = UserInfo()
-            found_user.email = user_profile["email"]
-            found_user.first_name = user_profile["firstName"]
-            found_user.last_name = user_profile["lastName"]
-            account_type = user_profile["accountType"]
-            found_user.is_superuser = DjoUser.is_begeleider(account_type)
-            found_user.userinfo.days = user_profile["days"]
-            found_user.userinfo.account_type = account_type
-            if "stripcard_used" in user_profile:
-                found_user.userinfo.stripcard_used = user_profile["stripcard_used"]
-                found_user.userinfo.stripcard_count = user_profile["stripcard_count"]
-            else:
-                # No active stripcard -> reset counters
-                found_user.userinfo.stripcard_used = 0
-                found_user.userinfo.stripcard_count = 0
-            found_user.save()
-            found_user.userinfo.save()
-
-            auth_login(request, found_user)
-
-            if found_user.is_superuser:
-                return HttpResponseRedirect(reverse("report"))
-            else:
-                return HttpResponseRedirect(reverse("main"))
-        else:
+        if "access_token" not in access_token or access_token["access_token"] == "":
             return HttpResponseForbidden("IDP Login mislukt")
+
+        user_profile = oauth.get(settings.IDP_API_URL).json()
+        username = f"idp-{user_profile['id']}"
+
+        try:
+            found_user = DjoUser.objects.get(username=username)
+        except DjoUser.DoesNotExist:
+            found_user = DjoUser()
+            found_user.username = username
+            found_user.set_unusable_password()
+
+        if not hasattr(found_user, "userinfo"):
+            found_user.userinfo = UserInfo()
+        found_user.email = user_profile["email"]
+        found_user.first_name = user_profile["firstName"]
+        found_user.last_name = user_profile["lastName"]
+        account_type = user_profile["accountType"]
+        found_user.is_superuser = DjoUser.is_begeleider(account_type)
+        found_user.userinfo.days = user_profile["days"]
+        found_user.userinfo.account_type = account_type
+        if "stripcard_used" in user_profile:
+            found_user.userinfo.stripcard_used = user_profile["stripcard_used"]
+            found_user.userinfo.stripcard_count = user_profile["stripcard_count"]
+        else:
+            # No active stripcard -> reset counters
+            found_user.userinfo.stripcard_used = 0
+            found_user.userinfo.stripcard_count = 0
+        found_user.save()
+        found_user.userinfo.save()
+
+        auth_login(request, found_user)
+
+        if found_user.is_superuser:
+            return HttpResponseRedirect(reverse("report"))
+        return HttpResponseRedirect(reverse("main"))
 
 
 class LogoffView(LoginRequiredMixin, View):
@@ -111,7 +110,7 @@ class LogoffView(LoginRequiredMixin, View):
 class Main(LoginRequiredMixin, TemplateView):
     template_name = "main.html"
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context.update({"slots": Slot.get_enabled_slots(self.request.user)})
         return context
@@ -248,7 +247,7 @@ class RegisterManual(BegeleiderRequiredMixin, SlotContextMixin, CreateView):
 
         try:
             response = super().post(request, *args, **kwargs)
-        except IntegrityError as e:
+        except IntegrityError:
             # Already registered -> ignore
             response = HttpResponseRedirect(reverse("report"))
 

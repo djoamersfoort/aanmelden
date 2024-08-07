@@ -1,7 +1,6 @@
 from datetime import date
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db.models import Value, F
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -9,9 +8,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from .mixins import ClientCredentialsRequiredMixin, SlotContextMixin, AuthenticatedMixin
-from .models import Presence, MacAddress, Slot, UserInfo
-from .utils import (
+from aanmelden.src.mixins import (
+    ClientCredentialsRequiredMixin,
+    SlotContextMixin,
+    AuthenticatedMixin,
+)
+from aanmelden.src.models import Presence, MacAddress, Slot, DjoUser
+from aanmelden.src.utils import (
     register,
     deregister,
     NotEnoughSlotsException,
@@ -127,7 +130,7 @@ class Slots(AuthenticatedMixin, View):
             )
 
         members = list(
-            User.objects.filter(is_active=True)
+            DjoUser.objects.filter(is_active=True)
             .values("id")
             .annotate(
                 name=Concat("first_name", Value(" "), "last_name"),
@@ -174,7 +177,7 @@ class RegisterManual(AuthenticatedMixin, SlotContextMixin, View):
         if not self.request.user.is_superuser:
             return HttpResponse(status=403)
 
-        user = User.objects.get(id=int(kwargs.get("pk")))
+        user = DjoUser.objects.get(id=int(kwargs.get("pk")))
         register(self.slot, user, True)
         return JsonResponse({"ok": True})
 
