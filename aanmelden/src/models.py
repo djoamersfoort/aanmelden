@@ -56,7 +56,9 @@ class UserInfo(models.Model):
     account_type = models.CharField(max_length=100, default="", null=False)
     stripcard_used = models.IntegerField(default=0, null=False)
     stripcard_count = models.IntegerField(default=0, null=False)
-    stripcard_expires = models.DateField(default=timezone.datetime(year=2099, month=1, day=1).date(), null=False)
+    stripcard_expires = models.DateField(
+        default=timezone.datetime(year=2099, month=1, day=1).date(), null=False
+    )
 
     def __str__(self):
         return f"User details for {self.user}"
