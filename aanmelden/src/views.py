@@ -85,6 +85,7 @@ class LoginResponseView(View):
         if "stripcard_used" in user_profile:
             found_user.userinfo.stripcard_used = user_profile["stripcard_used"]
             found_user.userinfo.stripcard_count = user_profile["stripcard_count"]
+            found_user.userinfo.stripcard_expires = user_profile["stripcard_expires"]
         else:
             # No active stripcard -> reset counters
             found_user.userinfo.stripcard_used = 0
