@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.forms.models import model_to_dict
+from django.utils import timezone
 
 DAY_NUMBERS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
 
@@ -55,6 +56,9 @@ class UserInfo(models.Model):
     account_type = models.CharField(max_length=100, default="", null=False)
     stripcard_used = models.IntegerField(default=0, null=False)
     stripcard_count = models.IntegerField(default=0, null=False)
+    stripcard_expires = models.DateField(
+        default=timezone.datetime(year=2099, month=1, day=1).date(), null=False
+    )
 
     def __str__(self):
         return f"User details for {self.user}"
