@@ -145,13 +145,15 @@ class Slots(AuthenticatedMixin, View):
             )
         )
 
-        dates = list(
+        registered_dates = list(
             request.user.presence_set.filter(date__gte=datetime.today())
             .order_by("date")
             .values_list("date", flat=True)
         )
 
-        return JsonResponse({"slots": slots, "members": members, "dates": dates})
+        return JsonResponse(
+            {"slots": slots, "members": members, "registered_dates": registered_dates}
+        )
 
 
 class MarkSeen(AuthenticatedMixin, View):
