@@ -11,7 +11,11 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from aanmelden.src.mixins import ClientCredentialsRequiredMixin, SlotContextMixin, AuthenticatedMixin
+from aanmelden.src.mixins import (
+    ClientCredentialsRequiredMixin,
+    SlotContextMixin,
+    AuthenticatedMixin,
+)
 from aanmelden.src.models import DjoUser
 from aanmelden.src.models import Presence, MacAddress, Slot, DAY_NUMBERS
 from aanmelden.src.utils import (
@@ -142,9 +146,8 @@ class Slots(AuthenticatedMixin, View):
         )
 
         dates = list(
-            request.user.presence_set.filter(
-                date__gte=datetime.today()
-            ).order_by("date")
+            request.user.presence_set.filter(date__gte=datetime.today())
+            .order_by("date")
             .values_list("date", flat=True)
         )
 
@@ -221,11 +224,27 @@ class FutureUpdate(AuthenticatedMixin, View):
         if "add" in body:
             for add in body["add"]:
                 add_date = parse_date(add)
-                register_future(add_date, Slot.objects.filter(name=list(DAY_NUMBERS.keys())[list(DAY_NUMBERS.values()).index(add_date.weekday())]).first(), request.user)
+                register_future(
+                    add_date,
+                    Slot.objects.filter(
+                        name=list(DAY_NUMBERS.keys())[
+                            list(DAY_NUMBERS.values()).index(add_date.weekday())
+                        ]
+                    ).first(),
+                    request.user,
+                )
 
         if "remove" in body:
             for remove in body["remove"]:
                 remove_date = parse_date(remove)
-                deregister_future(remove_date, Slot.objects.filter(name=list(DAY_NUMBERS.keys())[list(DAY_NUMBERS.values()).index(remove_date.weekday())]).first(), request.user)
+                deregister_future(
+                    remove_date,
+                    Slot.objects.filter(
+                        name=list(DAY_NUMBERS.keys())[
+                            list(DAY_NUMBERS.values()).index(remove_date.weekday())
+                        ]
+                    ).first(),
+                    request.user,
+                )
 
         return JsonResponse({"error": None})
