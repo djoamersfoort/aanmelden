@@ -1,22 +1,24 @@
 from datetime import date
+from datetime import datetime
+from json import loads
 
 from django.conf import settings
 from django.db.models import Value, F
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from aanmelden.src.mixins import (
-    ClientCredentialsRequiredMixin,
-    SlotContextMixin,
-    AuthenticatedMixin,
-)
-from aanmelden.src.models import Presence, MacAddress, Slot, DjoUser
+from aanmelden.src.mixins import ClientCredentialsRequiredMixin, SlotContextMixin, AuthenticatedMixin
+from aanmelden.src.models import DjoUser
+from aanmelden.src.models import Presence, MacAddress, Slot, DAY_NUMBERS
 from aanmelden.src.utils import (
     register,
+    register_future,
     deregister,
+    deregister_future,
     NotEnoughSlotsException,
     TooManyDaysException,
     StripcardLimitReachedException,
@@ -139,7 +141,14 @@ class Slots(AuthenticatedMixin, View):
             )
         )
 
-        return JsonResponse({"slots": slots, "members": members})
+        dates = list(
+            request.user.presence_set.filter(
+                date__gte=datetime.today()
+            ).order_by("date")
+            .values_list("date", flat=True)
+        )
+
+        return JsonResponse({"slots": slots, "members": members, "dates": dates})
 
 
 class MarkSeen(AuthenticatedMixin, View):
@@ -156,8 +165,13 @@ class MarkSeen(AuthenticatedMixin, View):
 
 class Register(AuthenticatedMixin, SlotContextMixin, View):
     def get(self, request, *args, **kwargs):
+        future_date = kwargs.get("date")
         try:
-            register(self.slot, request.user, request.user.is_superuser)
+            if future_date is not None:
+                register_future(parse_date(future_date), self.slot, request.user)
+            else:
+                register(self.slot, request.user, request.user.is_superuser)
+
         except NotEnoughSlotsException:
             return JsonResponse({"error": "Not enough slots available"}, status=400)
         except TooManyDaysException:
@@ -184,9 +198,34 @@ class RegisterManual(AuthenticatedMixin, SlotContextMixin, View):
 
 class DeRegister(AuthenticatedMixin, SlotContextMixin, View):
     def get(self, request, *args, **kwargs):
+        future_date = kwargs.get("date")
         try:
-            deregister(self.slot, request.user)
+            if request.user.is_superuser and future_date is not None:
+                deregister_future(parse_date(future_date), self.slot, request.user)
+            else:
+                deregister(self.slot, request.user)
+
         except AlreadySeenException:
             return JsonResponse({"error": "Je bent al aanwezig"})
+
+        return JsonResponse({"error": None})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class FutureUpdate(AuthenticatedMixin, View):
+    def patch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return HttpResponse(status=403)
+
+        body = loads(request.body.decode("utf8"))
+        if "add" in body:
+            for add in body["add"]:
+                add_date = parse_date(add)
+                register_future(add_date, Slot.objects.filter(name=list(DAY_NUMBERS.keys())[list(DAY_NUMBERS.values()).index(add_date.weekday())]).first(), request.user)
+
+        if "remove" in body:
+            for remove in body["remove"]:
+                remove_date = parse_date(remove)
+                deregister_future(remove_date, Slot.objects.filter(name=list(DAY_NUMBERS.keys())[list(DAY_NUMBERS.values()).index(remove_date.weekday())]).first(), request.user)
 
         return JsonResponse({"error": None})

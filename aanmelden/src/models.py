@@ -34,6 +34,7 @@ class DjoUser(DjangoUser):
 
     @staticmethod
     def is_begeleider(account_type):
+        print(account_type)
         types = account_type.split(",")
         return (
             "begeleider" in types
