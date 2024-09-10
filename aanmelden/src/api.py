@@ -203,7 +203,7 @@ class DeRegister(AuthenticatedMixin, SlotContextMixin, View):
     def get(self, request, *args, **kwargs):
         future_date = kwargs.get("date")
         try:
-            if request.user.is_superuser and future_date is not None:
+            if request.user.is_superuser and future_date:
                 deregister_future(parse_date(future_date), self.slot, request.user)
             else:
                 deregister(self.slot, request.user)
