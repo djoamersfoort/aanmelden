@@ -170,7 +170,7 @@ class Register(AuthenticatedMixin, SlotContextMixin, View):
     def get(self, request, *args, **kwargs):
         future_date = kwargs.get("date")
         try:
-            if future_date is not None:
+            if future_date:
                 register_future(parse_date(future_date), self.slot, request.user)
             else:
                 register(self.slot, request.user, request.user.is_superuser)
