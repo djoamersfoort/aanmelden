@@ -1,12 +1,13 @@
 import jwt
 from django.conf import settings
+from django.contrib.auth import login as auth_login
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http.response import HttpResponseForbidden, HttpResponseNotFound
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
-from aanmelden.src.models import Slot, DjoUser
+from aanmelden.src.models import Slot, DjoUser, UserInfo
 from aanmelden.src.utils import (
     get_access_token,
     get_openid_configuration,
@@ -130,6 +131,8 @@ class AuthenticatedMixin:
             user = DjoUser(username=username)
             user.set_unusable_password()
 
+        if not hasattr(user, "userinfo"):
+            user.userinfo = UserInfo()
         user.email = decoded_jwt["email"]
         user.first_name = decoded_jwt["given_name"]
         user.last_name = decoded_jwt["family_name"]
@@ -139,13 +142,13 @@ class AuthenticatedMixin:
         if decoded_jwt["stripcard"] is not None:
             user.userinfo.stripcard_used = decoded_jwt["stripcard"]["used"]
             user.userinfo.stripcard_count = decoded_jwt["stripcard"]["count"]
+            user.userinfo.stripcard_expires = decoded_jwt["stripcard"]["expires"]
         else:
             # No active stripcard -> reset counters
             user.userinfo.stripcard_used = 0
             user.userinfo.stripcard_count = 0
 
         user.save()
-
-        request.user = user
+        auth_login(request, user)
 
         return super().dispatch(request, *args, **kwargs)
