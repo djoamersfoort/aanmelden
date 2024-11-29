@@ -27,6 +27,7 @@ from aanmelden.src.utils import (
     TooManyDaysException,
     StripcardLimitReachedException,
     AlreadySeenException,
+    JochDetectedException,
     mark_seen,
 )
 
@@ -140,7 +141,10 @@ class RegisterFuture(
 ):
     def get(self, request, *args, **kwargs):
         date = parse_date(kwargs.get("date"))
-        register_future(date, self.slot, request.user)
+        try:
+            register_future(date, self.slot, request.user)
+        except JochDetectedException:
+            pass  # waarschijnlijk een joch die probeert te klooien
         return HttpResponseRedirect(reverse("calendar"))
 
 

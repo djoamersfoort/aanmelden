@@ -1,7 +1,7 @@
 import asyncio
+import datetime
 from datetime import timedelta
 from functools import lru_cache
-
 import requests
 from django.conf import settings
 from django.db import IntegrityError
@@ -80,16 +80,21 @@ def register_future(date, slot, user):
     presence.pod = slot.pod
     presence.user = user
 
+    # if it's in the past, don't register
+    if date < datetime.date.today():
+        raise JochDetectedException
+
     try:
         presence.save()
     except IntegrityError:
         # Already registered -> ignore
         pass
 
-    # only update if register date is in current week
+    # get start and end of registered week
     date_start = slot.date - timedelta(days=slot.date.weekday())
     date_end = date_start + timedelta(days=6)
 
+    # only update if register date is in current week
     if date_start <= date <= date_end:
         asyncio.run(sio.emit("update_report_page"))
         asyncio.run(sio.emit("update_main_page"))
@@ -160,7 +165,7 @@ def get_jwks_client():
     return PyJWKClient(uri=get_openid_configuration()["jwks_uri"])
 
 
-def get_access_token(request) -> (str, None):
+def get_access_token(request) -> tuple[str, None]:
     token = request.GET.get("access_token", "").strip()
     if token == "":
         parts = request.headers.get("authorization", "").split()

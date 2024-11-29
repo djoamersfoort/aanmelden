@@ -51,10 +51,18 @@ const loadCalendar = () => {
             
             const dateEntry = entries.find(entry => compareDates(date, entry.date))
             const dateSlot = slots.find(slot => slot.date.getDay() === date.getDay())
+            
+            const isToday = compareDates(date, today)
+            const canRegister = dateSlot && (date >= today || isToday)
 
             const td = document.createElement('td')
             td.className = 'text-center position-relative'
             td.textContent = dateNum
+
+            // if date is today
+            if (isToday) {
+                td.classList.add('text-decoration-underline')
+            }
 
             // if registration is found
             if (dateEntry) {
@@ -66,29 +74,34 @@ const loadCalendar = () => {
                 td.append(icon)
 
                 td.classList.add('text-bg-info')
-            } else if(dateSlot) {
+            } else if(canRegister) {
                 td.classList.add('bg-secondary-subtle')
             }
             
             // make clickable if can register
-            if(dateSlot) {
+            if(canRegister) {
                 const dateFormatted = formatDate(date)
                 td.role = 'button'
                 td.ariaLabel = `registreren voor ${dateFormatted}`
-
+                
+                td.dataset.bsTitle = date.toLocaleDateString('nl-NL', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                })
+                td.dataset.bsToggle = 'tooltip'
+                td.dataset.bsPlacement = 'right'
+                new bootstrap.Tooltip(td)
+                
                 const route = dateEntry ? 'deregister' : 'register'
                 const dateParam = encodeURIComponent(dateFormatted)
                 const dayParam = encodeURIComponent(dateSlot.name)
                 const podParam = encodeURIComponent(dateSlot.pod)
 
                 const url = `/${route}/future/${dateParam}/${dayParam}/${podParam}`
-                
+
                 td.addEventListener('click', () => location.href = url)
-            }
-            
-            // if date is today
-            if (compareDates(date, today)) {
-                td.classList.add('text-decoration-underline')
             }
 
             // gray out if it isn't the current month
