@@ -1,10 +1,10 @@
 import asyncio
-import requests
 import datetime
 from datetime import timedelta
+from functools import lru_cache
+import requests
 from django.conf import settings
 from django.db import IntegrityError
-from functools import lru_cache
 from jwt import PyJWKClient
 
 from aanmelden.sockets import sio
