@@ -1,4 +1,4 @@
-Django==6.0
+Django==6.0.1
 django-mathfilters==1.0.0
 django-widget-tweaks==1.5.1
 uvicorn[standard]==0.40.0
