@@ -6,6 +6,6 @@ oauthlib==3.3.1
 python-dateutil==2.9.0.post0
 requests==2.32.5
 requests-oauthlib==2.0.0
-python-socketio==5.16.0
+python-socketio==5.16.1
 pyjwt==2.11.0
 cryptography==46.0.5
