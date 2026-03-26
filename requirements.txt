@@ -4,7 +4,7 @@ django-widget-tweaks==1.5.1
 uvicorn[standard]==0.40.0
 oauthlib==3.3.1
 python-dateutil==2.9.0.post0
-requests==2.32.5
+requests==2.33.0
 requests-oauthlib==2.0.0
 python-socketio==5.16.1
 pyjwt==2.12.0
