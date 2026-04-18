@@ -28,7 +28,7 @@ from aanmelden.src.utils import (
     StripcardLimitReachedException,
     AlreadySeenException,
     JochDetectedException,
-    mark_seen,
+    mark_seen, set_opens_djo,
 )
 
 
@@ -234,6 +234,12 @@ class MarkAsSeen(BegeleiderRequiredMixin, View):
 
         mark_seen(pk, seen)
         return JsonResponse({"ok": True})
+
+
+class SetOpensDJO(BegeleiderRequiredMixin, SlotContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        set_opens_djo(request.user, self.slot, kwargs.get("opens_djo") == "true")
+        return HttpResponseRedirect(reverse("report"))
 
 
 # @method_decorator(never_cache, name='dispatch')

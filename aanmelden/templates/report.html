@@ -81,6 +81,9 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                             <div>
                                 <iconify-icon noobserver icon="line-md:account" class="text-primary" inline role="img" alt="begeleider:"></iconify-icon>
                                 {{ member.user.first_name }} {{ member.user.last_name }}
+                                {% if member.opens_djo %}
+                                <iconify-icon noobserver icon="mdi:key-variant" inline aria-hidden="true"></iconify-icon>
+                                {% endif %}
                             </div>
                             {% else %}
                             <div class="form-check">
@@ -125,6 +128,19 @@ Een overzicht van leden voor de aankomende vrijdag en zaterdag.
                             <iconify-icon noobserver icon="line-md:logout" inline aria-hidden="true"></iconify-icon>
                             Afmelden
                         </a>
+
+                        {% if slot.opens_djo %}
+                        <a class="btn btn-primary" href="{% url 'toggle_opens_djo' slot.name slot.pod 'false' %}">
+                            <iconify-icon noobserver icon="mdi:key-variant" inline aria-hidden="true"></iconify-icon>
+                            Zet open DJO uit
+                        </a>
+                        {% else %}
+                        <a class="btn btn-outline-primary" href="{% url 'toggle_opens_djo' slot.name slot.pod 'true' %}">
+                            <iconify-icon noobserver icon="mdi:key-variant" inline aria-hidden="true"></iconify-icon>
+                            Zet open DJO aan
+                        </a>
+                        {% endif %}
+
                         {% else %}
                         <a class="btn btn-primary" href="{% url 'register' slot.name slot.pod %}">
                             <iconify-icon noobserver icon="line-md:login" inline aria-hidden="true"></iconify-icon>
