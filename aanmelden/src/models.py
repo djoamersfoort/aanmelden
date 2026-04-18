@@ -120,6 +120,15 @@ class Slot(models.Model):
             Presence.objects.filter(user=user, date=self.date, pod=self.pod).count() > 0
         )
 
+    def opens_djo(self, user):
+        presence = Presence.objects.filter(
+            user=user, date=self.date, pod=self.pod
+        ).first()
+        if not presence:
+            return False
+
+        return presence.opens_djo
+
     @staticmethod
     def get_enabled_slots(user=None):
         slots = Slot.objects.filter(enabled=True)
@@ -139,6 +148,7 @@ class Slot(models.Model):
                 available_slot[field] = getattr(slot, field)
             if user:
                 available_slot["is_registered"] = slot.is_registered(user)
+                available_slot["opens_djo"] = slot.opens_djo(user)
             available_slots.append(available_slot)
         return available_slots
 
@@ -207,6 +217,7 @@ class Presence(models.Model):
     user = models.ForeignKey(DjoUser, models.CASCADE)
     date = models.DateField()
     pod = models.CharField(choices=POD_CHOICES, max_length=1, null=True)
+    opens_djo = models.BooleanField(default=False)
     seen = models.BooleanField(default=False)
     seen_by = models.CharField(
         max_length=6, choices=SEEN_BY_CHOICES, default="manual", null=False

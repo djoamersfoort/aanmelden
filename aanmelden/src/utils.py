@@ -115,6 +115,13 @@ def mark_seen(pk, seen):
     asyncio.run(sio.emit("update_report_page"))
 
 
+def set_opens_djo(user, slot, opens_djo):
+    presence = Presence.objects.get(user=user, date=slot.date, pod=slot.pod)
+    presence.opens_djo = opens_djo
+    presence.save()
+    asyncio.run(sio.emit("update_report_page"))
+
+
 class DeRegisterException(Exception):
     pass
 

@@ -28,6 +28,7 @@ from aanmelden.src.utils import (
     StripcardLimitReachedException,
     AlreadySeenException,
     mark_seen,
+    set_opens_djo,
 )
 
 
@@ -127,11 +128,21 @@ class Slots(AuthenticatedMixin, View):
                 Presence.objects.filter(
                     date=slot["date"], pod=slot["pod"], user__is_superuser=False
                 )
-                .values("id", "seen")
+                .values("id", "seen", "opens_djo")
                 .annotate(
                     name=Concat("user__first_name", Value(" "), "user__last_name"),
                     stripcard_used=F("user__userinfo__stripcard_used"),
                     stripcard_count=F("user__userinfo__stripcard_count"),
+                )
+            )
+
+            slot["tutors_detail"] = list(
+                Presence.objects.filter(
+                    date=slot["date"], pod=slot["pod"], user__is_superuser=True
+                )
+                .values("opens_djo")
+                .annotate(
+                    name=Concat("user__first_name", Value(" "), "user__last_name"),
                 )
             )
 
@@ -214,6 +225,15 @@ class DeRegister(AuthenticatedMixin, SlotContextMixin, View):
             return JsonResponse({"error": "Je bent al aanwezig"})
 
         return JsonResponse({"error": None})
+
+
+class SetOpensDJO(AuthenticatedMixin, SlotContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return HttpResponse(status=403)
+
+        set_opens_djo(request.user, self.slot, kwargs.get("opens_djo") == "true")
+        return JsonResponse({"ok": True})
 
 
 @method_decorator(csrf_exempt, name="dispatch")
