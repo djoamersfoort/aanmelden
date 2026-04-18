@@ -27,7 +27,8 @@ from aanmelden.src.utils import (
     TooManyDaysException,
     StripcardLimitReachedException,
     AlreadySeenException,
-    mark_seen, set_opens_djo,
+    mark_seen,
+    set_opens_djo,
 )
 
 

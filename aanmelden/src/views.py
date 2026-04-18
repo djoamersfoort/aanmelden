@@ -28,7 +28,8 @@ from aanmelden.src.utils import (
     StripcardLimitReachedException,
     AlreadySeenException,
     JochDetectedException,
-    mark_seen, set_opens_djo,
+    mark_seen,
+    set_opens_djo,
 )
 
 

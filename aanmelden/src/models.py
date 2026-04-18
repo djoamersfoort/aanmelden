@@ -121,7 +121,9 @@ class Slot(models.Model):
         )
 
     def opens_djo(self, user):
-        presence = Presence.objects.filter(user=user, date=self.date, pod=self.pod).first()
+        presence = Presence.objects.filter(
+            user=user, date=self.date, pod=self.pod
+        ).first()
         if not presence:
             return False
 
