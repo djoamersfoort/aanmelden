@@ -43,7 +43,9 @@ class LoginView(View):
         )
         auth_url, state = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
         request.session["oauth_state"] = state
-        request.session["code_verifier"] = oauth._code_verifier  # pylint: disable=protected-access
+        request.session["code_verifier"] = (
+            oauth._code_verifier
+        )  # pylint: disable=protected-access
         return HttpResponseRedirect(auth_url)
 
 
@@ -52,7 +54,9 @@ class LoginResponseView(View):
         saved_state = request.session.pop("oauth_state", None)
         code_verifier = request.session.pop("code_verifier", None)
         oauth = OAuth2Session(
-            client_id=settings.IDP_CLIENT_ID, redirect_uri=settings.IDP_REDIRECT_URL, state=saved_state
+            client_id=settings.IDP_CLIENT_ID,
+            redirect_uri=settings.IDP_REDIRECT_URL,
+            state=saved_state,
         )
         full_response_url = request.build_absolute_uri()
         full_response_url = full_response_url.replace("http:", "https:")
