@@ -44,8 +44,8 @@ class LoginView(View):
         auth_url, state = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
         request.session["oauth_state"] = state
         request.session["code_verifier"] = (
-            oauth._code_verifier
-        )  # pylint: disable=protected-access
+            oauth._code_verifier  # pylint: disable=protected-access
+        )
         return HttpResponseRedirect(auth_url)
 
 
