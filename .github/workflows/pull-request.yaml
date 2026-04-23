@@ -29,3 +29,7 @@ jobs:
           black --check aanmelden
           cp aanmelden/settings.example.py aanmelden/settings.py
           DJANGO_SETTINGS_MODULE="aanmelden.settings" pylint --load-plugins=pylint_django aanmelden
+
+      - name: Run unit tests
+        run: |
+          python manage.py test
