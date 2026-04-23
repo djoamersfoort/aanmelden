@@ -4,12 +4,12 @@ from django.conf import settings
 from django.contrib.auth import logout, login as auth_login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError
+from django.forms.models import model_to_dict
 from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.urls import reverse, reverse_lazy
-from django.forms.models import model_to_dict
 from django.utils.dateparse import parse_date
-from django.utils.timezone import datetime
 from django.utils.decorators import method_decorator
+from django.utils.timezone import datetime
 from django.views.decorators.cache import never_cache
 from django.views.generic import View, ListView, TemplateView
 from django.views.generic.edit import CreateView
@@ -39,15 +39,24 @@ class LoginView(View):
             client_id=settings.IDP_CLIENT_ID,
             redirect_uri=settings.IDP_REDIRECT_URL,
             scope=settings.IDP_API_SCOPES,
+            pkce="S256",
         )
-        auth_url, _ = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
+        auth_url, state = oauth.authorization_url(settings.IDP_AUTHORIZE_URL)
+        request.session["oauth_state"] = state
+        request.session["code_verifier"] = (
+            oauth._code_verifier  # pylint: disable=protected-access
+        )
         return HttpResponseRedirect(auth_url)
 
 
 class LoginResponseView(View):
     def get(self, request, *args, **kwargs):
+        saved_state = request.session.pop("oauth_state", None)
+        code_verifier = request.session.pop("code_verifier", None)
         oauth = OAuth2Session(
-            client_id=settings.IDP_CLIENT_ID, redirect_uri=settings.IDP_REDIRECT_URL
+            client_id=settings.IDP_CLIENT_ID,
+            redirect_uri=settings.IDP_REDIRECT_URL,
+            state=saved_state,
         )
         full_response_url = request.build_absolute_uri()
         full_response_url = full_response_url.replace("http:", "https:")
@@ -56,6 +65,7 @@ class LoginResponseView(View):
                 settings.IDP_TOKEN_URL,
                 authorization_response=full_response_url,
                 client_secret=settings.IDP_CLIENT_SECRET,
+                code_verifier=code_verifier,
             )
         except Exception:  # pylint: disable=broad-exception-caught
             # Something went wrong getting the token
