@@ -8,4 +8,4 @@ requests==2.33.1
 requests-oauthlib==2.0.0
 python-socketio==5.16.1
 pyjwt==2.12.1
-cryptography==46.0.7
+cryptography==47.0.0
